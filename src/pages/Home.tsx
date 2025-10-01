@@ -1,0 +1,338 @@
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { GlassCard } from "@/components/GlassCard";
+import { Button } from "@/components/ui/button";
+import { Check, Zap, RefreshCw, TrendingUp, BarChart3, Code, ArrowRight, ChevronDown } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const Home = () => {
+  const features = [
+    {
+      icon: Zap,
+      title: "One-click Feed Builder",
+      description: "Generate ACP-compliant feeds instantly from your Etsy inventory."
+    },
+    {
+      icon: RefreshCw,
+      title: "Auto-Sync & Validation",
+      description: "Keep your feed fresh with automatic updates and error checking."
+    },
+    {
+      icon: TrendingUp,
+      title: "Trend-Aware Alerts",
+      description: "Get notified when AI shopping trends shift in your niche."
+    },
+    {
+      icon: BarChart3,
+      title: "Ranking Snapshot",
+      description: "Track how your products perform in AI search results."
+    }
+  ];
+
+  const pricingPlans = [
+    {
+      name: "Free",
+      price: "$0",
+      features: ["Basic ACP feed", "Manual sync", "5 products", "Community support"]
+    },
+    {
+      name: "Starter",
+      price: "$9.99",
+      popular: true,
+      features: ["Auto-sync every 24h", "50 products", "Email support", "Trend alerts"]
+    },
+    {
+      name: "Pro",
+      price: "$49.99",
+      features: ["Unlimited products", "Real-time sync", "Priority support", "Advanced analytics"]
+    }
+  ];
+
+  const faqs = [
+    {
+      question: "What is ACP and why do I need it?",
+      answer: "ACP (AI Commerce Protocol) is the standard that AI assistants like ChatGPT use to discover products. Without it, your shop is invisible to AI shoppers."
+    },
+    {
+      question: "How quickly can I get set up?",
+      answer: "Most shops are ACP-ready in under 5 minutes. Just connect your Etsy store and we'll handle the rest."
+    },
+    {
+      question: "Do I need technical knowledge?",
+      answer: "Not at all! AgentRanked automates everything. No coding, no spreadsheets, no manual work."
+    },
+    {
+      question: "How often does the feed update?",
+      answer: "Starter plans sync every 24 hours. Pro plans get real-time updates whenever you change your inventory."
+    },
+    {
+      question: "Can I cancel anytime?",
+      answer: "Yes! All paid plans are month-to-month with no long-term commitment required."
+    }
+  ];
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="glass-frost rounded-3xl p-12 md:p-16 text-center relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent" />
+            <div className="relative z-10">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                Get your Etsy shop discovered by{" "}
+                <span className="bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent">
+                  AI shoppers
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto font-light">
+                AgentRank auto-builds and hosts an ACP feed so ChatGPT can surface your products.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 shadow-lg shadow-accent/30 group">
+                  <Link to="/signup">
+                    Get ACP-Ready
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" size="lg" className="text-foreground hover:text-accent text-lg font-medium">
+                  <a href="#features">
+                    See Features
+                    <ChevronDown className="ml-2 h-5 w-5" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* What is ACP Section */}
+      <section id="acp" className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                What is ACP & Why Now?
+              </h2>
+              <p className="text-muted-foreground mb-6 font-light">
+                AI shopping assistants like ChatGPT need structured product data to recommend items. 
+                ACP (AI Commerce Protocol) is the standard format they understand.
+              </p>
+              <div className="space-y-3">
+                {["Valid robots.txt", "Fresh feed updates", "Proper schema markup", "Error-free validation", "Optimized metadata"].map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+                      <Check className="h-4 w-4 text-accent" />
+                    </div>
+                    <span className="text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <GlassCard className="p-8">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-mono text-accent">feed.json</span>
+                <Code className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`{
+  "products": [
+    {
+      "id": "etsy-12345",
+      "name": "Handcrafted Mug",
+      "price": 24.99,
+      "currency": "USD",
+      "availability": "in_stock",
+      "url": "https://etsy.com/...",
+      "image": "https://cdn.etsy/..."
+    }
+  ]
+}`}
+              </pre>
+            </GlassCard>
+          </div>
+        </div>
+      </section>
+
+      {/* Before/After Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Others make you do the work —{" "}
+              <span className="text-accent">AgentRank automates it</span>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <GlassCard className="p-8">
+              <div className="text-red-400 font-semibold mb-4">❌ Manual Approach</div>
+              <ul className="space-y-3 text-muted-foreground">
+                <li>• Export CSV from Etsy</li>
+                <li>• Format spreadsheet manually</li>
+                <li>• Upload to hosting</li>
+                <li>• Configure robots.txt</li>
+                <li>• Repeat weekly</li>
+              </ul>
+            </GlassCard>
+            <GlassCard className="p-8 bg-gradient-to-br from-accent/10 to-transparent">
+              <div className="text-accent font-semibold mb-4">✓ AgentRank Way</div>
+              <ul className="space-y-3 text-foreground">
+                <li>• Connect Etsy once</li>
+                <li>• Auto-sync daily</li>
+                <li>• Validation included</li>
+                <li>• Hosting included</li>
+                <li>• Set and forget</li>
+              </ul>
+            </GlassCard>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need</h2>
+            <p className="text-muted-foreground text-lg font-light">Built for Etsy sellers, powered by automation</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <GlassCard key={index} className="p-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="h-6 w-6 text-accent" />
+                </div>
+                <h3 className="font-semibold mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground font-light">{feature.description}</p>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Teaser */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, transparent pricing</h2>
+            <p className="text-muted-foreground text-lg font-light">Start free, scale as you grow</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {pricingPlans.map((plan, index) => (
+              <GlassCard 
+                key={index} 
+                className={`p-8 ${plan.popular ? 'ring-2 ring-accent bg-gradient-to-br from-accent/5 to-transparent' : ''}`}
+              >
+                {plan.popular && (
+                  <div className="text-accent text-sm font-semibold mb-2">MOST POPULAR</div>
+                )}
+                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                <div className="text-4xl font-bold mb-6">
+                  {plan.price}<span className="text-lg text-muted-foreground font-normal">/mo</span>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-accent flex-shrink-0" />
+                      <span className="text-muted-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button className="w-full" variant={plan.popular ? "default" : "ghost"}>
+                  {plan.name === "Free" ? "Start Free" : "Get Started"}
+                </Button>
+              </GlassCard>
+            ))}
+          </div>
+          <div className="text-center">
+            <Button asChild variant="ghost" className="text-accent hover:text-accent/90">
+              <Link to="/pricing">
+                View full pricing details <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <GlassCard className="p-12 text-center">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div>
+                <div className="text-5xl font-bold text-accent mb-2">30K+</div>
+                <div className="text-muted-foreground">ACP Pushes Completed</div>
+              </div>
+              <div>
+                <div className="text-5xl font-bold text-accent mb-2">1.2M</div>
+                <div className="text-muted-foreground">Products Optimized</div>
+              </div>
+              <div>
+                <div className="text-5xl font-bold text-accent mb-2">98%</div>
+                <div className="text-muted-foreground">Feed Accuracy</div>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          </div>
+          <GlassCard className="p-8">
+            <Accordion type="single" collapsible className="space-y-4">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="border-white/10">
+                  <AccordionTrigger className="text-left font-semibold hover:text-accent">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground font-light">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </GlassCard>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <GlassCard className="p-12 text-center bg-gradient-to-br from-accent/10 to-transparent">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to get discovered?
+            </h2>
+            <p className="text-muted-foreground mb-8 text-lg font-light">
+              Join thousands of Etsy sellers who are already ACP-ready.
+            </p>
+            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 shadow-lg shadow-accent/30">
+              <Link to="/signup">Get Started Free</Link>
+            </Button>
+          </GlassCard>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Home;
