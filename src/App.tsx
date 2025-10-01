@@ -36,6 +36,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Dashboard routes (own layout) */}
+          <Route path="/dashboard" element={<DashboardProducts />} />
           <Route path="/dashboard/products" element={<DashboardProducts />} />
 
           {/* 404 */}
