@@ -37,7 +37,7 @@ export const OAuthButton = ({ provider, text, ...props }: OAuthButtonProps) => {
   return (
     <button
       type="button"
-      className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all flex items-center justify-center gap-3"
+      className="w-full py-3 px-4 bg-background/50 border border-border rounded-lg font-medium text-foreground hover:bg-accent/10 hover:border-accent/50 focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-all flex items-center justify-center gap-3 backdrop-blur-sm"
       {...props}
     >
       {icons[provider]}

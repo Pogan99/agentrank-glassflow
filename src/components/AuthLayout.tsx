@@ -27,17 +27,7 @@ export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProp
 
         {/* Content */}
         <div className="relative h-full flex flex-col justify-between p-8 lg:p-12 text-white">
-          {/* Hero Text */}
-          <div className="flex-1 flex flex-col justify-center">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-              {heroTitle}
-            </h2>
-            <p className="text-lg lg:text-xl text-white/90 font-light">
-              {heroSubtitle}
-            </p>
-          </div>
-
-          {/* Trust Badge */}
+          {/* Trust Badge - Moved to top */}
           <div className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 self-start">
             <div className="flex -space-x-2">
               {[1, 2, 3].map((i) => (
@@ -63,6 +53,16 @@ export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProp
                 4.8 · Small decisions that create big results.
               </span>
             </div>
+          </div>
+
+          {/* Hero Text */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+              {heroTitle}
+            </h2>
+            <p className="text-lg lg:text-xl text-white/90 font-light">
+              {heroSubtitle}
+            </p>
           </div>
         </div>
       </div>

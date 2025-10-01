@@ -78,7 +78,7 @@ const Login = () => {
         {/* Logo */}
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#2D5BFF] to-cyan-500 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent">
               AgentRanked
             </h1>
           </Link>
@@ -97,10 +97,10 @@ const Login = () => {
           {/* OR Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">OR</span>
+              <span className="px-2 bg-background/80 backdrop-blur-sm text-muted-foreground">OR</span>
             </div>
           </div>
 

@@ -18,8 +18,8 @@ export const LoadingButton = ({
   const baseStyles = "w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantStyles = {
-    primary: "bg-[#2D5BFF] text-white hover:brightness-110 focus:ring-2 focus:ring-[#2D5BFF] focus:ring-offset-2",
-    secondary: "border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+    primary: "bg-accent text-accent-foreground hover:bg-accent/90 focus:ring-2 focus:ring-accent focus:ring-offset-2 shadow-lg shadow-accent/20",
+    secondary: "bg-background/50 border border-border text-foreground hover:bg-accent/10 hover:border-accent/50 focus:ring-2 focus:ring-accent focus:ring-offset-2 backdrop-blur-sm"
   };
 
   return (
