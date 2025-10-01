@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthLayout } from "@/components/AuthLayout";
 import { LoadingButton } from "@/components/LoadingButton";
@@ -8,6 +8,7 @@ import { OAuthButton } from "@/components/OAuthButton";
 import { Toast, ToastType } from "@/components/Toast";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,8 +72,12 @@ const Signup = () => {
     setTimeout(() => {
       setIsLoading(false);
       // Simulate success
-      setToast({ message: "Account created! Redirecting to dashboard...", type: "success" });
-      // In real app: navigate to dashboard
+      setToast({ message: "Account created! Redirecting...", type: "success" });
+
+      // Redirect to onboarding after 1 second
+      setTimeout(() => {
+        navigate("/onboarding/welcome");
+      }, 1000);
     }, 2000);
   };
 
