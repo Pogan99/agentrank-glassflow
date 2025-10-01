@@ -23,6 +23,7 @@ import Welcome from "./pages/onboarding/Welcome";
 import ConnectStore from "./pages/onboarding/ConnectStore";
 import OnboardingPricing from "./pages/onboarding/Pricing";
 import Setup from "./pages/onboarding/Setup";
+import Verify from "./pages/auth/Verify";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/verify" element={<Verify />} />
 
           {/* Onboarding routes (no nav/footer) */}
           <Route path="/onboarding/welcome" element={<Welcome />} />

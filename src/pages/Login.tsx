@@ -2,74 +2,70 @@ import { useState, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { AuthLayout } from "@/components/AuthLayout";
 import { LoadingButton } from "@/components/LoadingButton";
-import { PasswordInput } from "@/components/PasswordInput";
 import { OAuthButton } from "@/components/OAuthButton";
 import { Toast, ToastType } from "@/components/Toast";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const validateEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
-      setToast({ message: "Please fill in all required fields.", type: "error" });
-      return false;
-    }
-
-    return true;
-  };
-
   const handleEmailBlur = () => {
-    if (formData.email && !validateEmail(formData.email)) {
-      setErrors({ ...errors, email: "Please enter a valid email" });
+    if (email && !validateEmail(email)) {
+      setError("Please enter a valid email");
     }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email");
+      return;
+    }
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simulate success
-      setToast({ message: "Welcome back! Redirecting...", type: "success" });
-      // In real app: navigate to dashboard
-    }, 2000);
-  };
+    try {
+      // Send magic link
+      const response = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          type: "login",
+        }),
+      });
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-    // Clear error on change
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: "" });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Something went wrong");
+      }
+
+      setIsLoading(false);
+      setEmailSent(true);
+      setToast({
+        message: `Check your email! We sent a magic link to ${email}. Link expires in 15 minutes.`,
+        type: "success",
+      });
+    } catch (error: any) {
+      setIsLoading(false);
+      setToast({
+        message: error.message || "Something went wrong. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -83,14 +79,14 @@ const Login = () => {
         <div className="text-center">
           <Link to="/" className="inline-block">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-[#2D5BFF] to-cyan-500 bg-clip-text text-transparent">
-              AgentRank
+              AgentRanked
             </h1>
           </Link>
         </div>
 
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in to AgentRank</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in to AgentRanked</h2>
           <p className="text-gray-600">Welcome back! Please enter your details.</p>
         </div>
 
@@ -110,49 +106,32 @@ const Login = () => {
 
           {/* Email Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
             <input
               type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
               onBlur={handleEmailBlur}
-              onFocus={() => errors.email && setErrors({ ...errors, email: "" })}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                errors.email
+              onFocus={() => setError("")}
+              disabled={emailSent}
+              className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-all text-gray-900 placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed ${
+                error
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-[#2D5BFF] focus:border-[#2D5BFF]"
+                  : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
               }`}
               placeholder="you@example.com"
               autoComplete="email"
             />
-            {errors.email && <p className="text-sm text-red-500 mt-1.5">{errors.email}</p>}
-          </div>
-
-          {/* Password Field */}
-          <PasswordInput
-            label="Password"
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            onFocus={() => errors.password && setErrors({ ...errors, password: "" })}
-            error={errors.password}
-            placeholder="••••••••"
-            autoComplete="current-password"
-          />
-
-          {/* Forgot Password Link */}
-          <div className="text-right">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-[#2D5BFF] hover:underline font-medium"
-            >
-              Forgot password?
-            </Link>
+            {error && <p className="text-sm text-red-500 mt-1.5">{error}</p>}
           </div>
 
           {/* Submit Button */}
-          <LoadingButton type="submit" isLoading={isLoading}>
+          <LoadingButton type="submit" isLoading={isLoading} disabled={emailSent}>
             Sign in with email
           </LoadingButton>
         </form>
@@ -160,7 +139,7 @@ const Login = () => {
         {/* Footer Link */}
         <p className="text-center text-sm text-gray-600">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-[#2D5BFF] font-semibold hover:underline">
+          <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-semibold underline">
             Sign up
           </Link>
         </p>

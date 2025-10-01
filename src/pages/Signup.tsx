@@ -1,24 +1,21 @@
 import { useState, FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthLayout } from "@/components/AuthLayout";
 import { LoadingButton } from "@/components/LoadingButton";
-import { PasswordInput } from "@/components/PasswordInput";
 import { OAuthButton } from "@/components/OAuthButton";
 import { Toast, ToastType } from "@/components/Toast";
 
 const Signup = () => {
-  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: "",
-    agreeToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const validateEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,17 +37,6 @@ const Signup = () => {
       newErrors.email = "Please enter a valid email";
     }
 
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    if (!formData.agreeToTerms) {
-      setToast({ message: "Please agree to Terms of Service", type: "error" });
-      return false;
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -68,24 +54,43 @@ const Signup = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simulate success
-      setToast({ message: "Account created! Redirecting...", type: "success" });
+    try {
+      // Send magic link
+      const response = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          type: "signup",
+        }),
+      });
 
-      // Redirect to onboarding after 1 second
-      setTimeout(() => {
-        navigate("/onboarding/welcome");
-      }, 1000);
-    }, 2000);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Something went wrong");
+      }
+
+      setIsLoading(false);
+      setEmailSent(true);
+      setToast({
+        message: `Check your email! We sent a magic link to ${formData.email}. Link expires in 15 minutes.`,
+        type: "success",
+      });
+    } catch (error: any) {
+      setIsLoading(false);
+      setToast({
+        message: error.message || "Something went wrong. Please try again.",
+        type: "error",
+      });
+    }
   };
 
   const handleExpandForm = () => {
     setIsExpanded(true);
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
     // Clear error on change
     if (errors[field]) {
@@ -130,7 +135,7 @@ const Signup = () => {
 
           {/* Progressive Disclosure */}
           {!isExpanded ? (
-            <LoadingButton type="button" onClick={handleExpandForm}>
+            <LoadingButton type="button" onClick={handleExpandForm} disabled={emailSent}>
               Sign up with email
             </LoadingButton>
           ) : (
@@ -138,25 +143,26 @@ const Signup = () => {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="space-y-4 overflow-hidden"
               >
                 {/* Name Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Full Name
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     onFocus={() => errors.name && setErrors({ ...errors, name: "" })}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                    disabled={emailSent}
+                    className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-all text-gray-900 placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.name
                         ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-[#2D5BFF] focus:border-[#2D5BFF]"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                     }`}
-                    placeholder="Jane Doe"
+                    placeholder="Enter your name"
                     maxLength={100}
                   />
                   {errors.name && <p className="text-sm text-red-500 mt-1.5">{errors.name}</p>}
@@ -164,7 +170,7 @@ const Signup = () => {
 
                 {/* Email Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email
                   </label>
                   <input
@@ -173,46 +179,19 @@ const Signup = () => {
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     onBlur={handleEmailBlur}
                     onFocus={() => errors.email && setErrors({ ...errors, email: "" })}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                    disabled={emailSent}
+                    className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-all text-gray-900 placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.email
                         ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-[#2D5BFF] focus:border-[#2D5BFF]"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                     }`}
-                    placeholder="you@example.com"
+                    placeholder="Enter your email"
                   />
                   {errors.email && <p className="text-sm text-red-500 mt-1.5">{errors.email}</p>}
                 </div>
 
-                {/* Password Field */}
-                <PasswordInput
-                  label="Password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  onFocus={() => errors.password && setErrors({ ...errors, password: "" })}
-                  error={errors.password}
-                  placeholder="••••••••"
-                  showStrength
-                />
-
-                {/* Terms Checkbox */}
-                <div className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    checked={formData.agreeToTerms}
-                    onChange={(e) => handleInputChange("agreeToTerms", e.target.checked)}
-                    className="mt-1 rounded border-gray-300 text-[#2D5BFF] focus:ring-[#2D5BFF]"
-                  />
-                  <label htmlFor="terms" className="text-sm text-gray-600">
-                    I agree to the{" "}
-                    <a href="#" className="text-[#2D5BFF] hover:underline">
-                      Terms of Service
-                    </a>
-                  </label>
-                </div>
-
                 {/* Submit Button */}
-                <LoadingButton type="submit" isLoading={isLoading}>
+                <LoadingButton type="submit" isLoading={isLoading} disabled={emailSent}>
                   Sign up
                 </LoadingButton>
               </motion.div>
@@ -223,11 +202,11 @@ const Signup = () => {
           {!isExpanded && (
             <p className="text-xs text-center text-gray-600">
               By signing up you agree to our{" "}
-              <a href="#" className="text-[#2D5BFF] hover:underline">
+              <a href="#" className="text-blue-600 hover:text-blue-700 underline">
                 Privacy Policy
               </a>{" "}
               and{" "}
-              <a href="#" className="text-[#2D5BFF] hover:underline">
+              <a href="#" className="text-blue-600 hover:text-blue-700 underline">
                 Terms of Service
               </a>
             </p>
