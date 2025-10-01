@@ -18,7 +18,7 @@ export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProp
 
       {/* Right Panel - Hero Image */}
       <div className="flex-1 relative bg-cover bg-center min-h-[300px] lg:min-h-screen"
-           style={{ backgroundImage: "url('/Login.jpg')" }}>
+           style={{ backgroundImage: "url('/Loginnewlog.jpg')" }}>
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/40" />
 
@@ -57,7 +57,7 @@ export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProp
                 ))}
               </div>
               <span className="text-sm font-medium">
-                4.8 · Trusted by 600,000+ Etsy sellers
+                4.8 · Small decisions that create big results.
               </span>
             </div>
           </div>
