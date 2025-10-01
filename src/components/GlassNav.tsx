@@ -53,7 +53,7 @@ export const GlassNav = () => {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-2xl font-bold bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent">
-              AgentRanked
+              AgentRank
             </span>
           </Link>
 

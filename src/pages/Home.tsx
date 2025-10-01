@@ -14,23 +14,23 @@ const Home = () => {
   const features = [
     {
       icon: Zap,
-      title: "One-click Feed Builder",
-      description: "Generate ACP-compliant feeds instantly from your Etsy inventory."
+      title: "ACP Feed Builder",
+      description: "Connect Etsy via OAuth. We map your catalog to ACP spec instantly."
     },
     {
       icon: RefreshCw,
       title: "Auto-Sync & Validation",
-      description: "Keep your feed fresh with automatic updates and error checking."
+      description: "Hourly sync keeps pricing and stock fresh. Get alerts on errors."
     },
     {
       icon: TrendingUp,
       title: "Trend-Aware Alerts",
-      description: "Get notified when AI shopping trends shift in your niche."
+      description: "When search trends shift, we suggest title/tag updates."
     },
     {
       icon: BarChart3,
       title: "Ranking Snapshot",
-      description: "Track how your products perform in AI search results."
+      description: "See how you rank in your Etsy category vs competitors."
     }
   ];
 
@@ -38,37 +38,37 @@ const Home = () => {
     {
       name: "Free",
       price: "$0",
-      features: ["Basic ACP feed", "Manual sync", "5 products", "Community support"]
+      features: ["ACP feed generation", "1 optimization/day", "Weekly sync", "Basic validation"]
     },
     {
       name: "Starter",
       price: "$9.99",
       popular: true,
-      features: ["Auto-sync every 24h", "50 products", "Email support", "Trend alerts"]
+      features: ["20 optimizations/day", "Daily sync", "Email alerts", "Trend insights"]
     },
     {
       name: "Pro",
       price: "$49.99",
-      features: ["Unlimited products", "Real-time sync", "Priority support", "Advanced analytics"]
+      features: ["Unlimited optimizations", "Hourly sync", "Priority support", "Backlinks + content"]
     }
   ];
 
   const faqs = [
     {
       question: "What is ACP and why do I need it?",
-      answer: "ACP (AI Commerce Protocol) is the standard that AI assistants like ChatGPT use to discover products. Without it, your shop is invisible to AI shoppers."
+      answer: "ACP (Agentic Commerce Protocol) is the standard that AI assistants like ChatGPT use to discover products. Without an ACP feed, your Etsy shop is invisible to millions of AI-powered shoppers who use ChatGPT Shopping."
     },
     {
       question: "How quickly can I get set up?",
-      answer: "Most shops are ACP-ready in under 5 minutes. Just connect your Etsy store and we'll handle the rest."
+      answer: "Most shops are ACP-ready in under 5 minutes. Just connect your Etsy store via OAuth and we'll generate your feed automatically."
     },
     {
       question: "Do I need technical knowledge?",
-      answer: "Not at all! AgentRanked automates everything. No coding, no spreadsheets, no manual work."
+      answer: "Not at all! AgentRank automates everything. No coding, no spreadsheets, no manual work."
     },
     {
       question: "How often does the feed update?",
-      answer: "Starter plans sync every 24 hours. Pro plans get real-time updates whenever you change your inventory."
+      answer: "Free plans sync weekly, Starter plans sync daily, and Pro plans sync hourly to keep your inventory fresh."
     },
     {
       question: "Can I cancel anytime?",
@@ -85,7 +85,7 @@ const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="glass-frost rounded-3xl p-12 md:p-16 text-center relative overflow-hidden"
+            className="glass-frost rounded-3xl p-12 md:p-16 text-center relative overflow-hidden min-h-[60vh] flex flex-col justify-center"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent" />
             <div className="relative z-10">
@@ -95,17 +95,31 @@ const Home = () => {
                   AI shoppers
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto font-light">
+              <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto font-light">
                 AgentRank auto-builds and hosts an ACP feed so ChatGPT can surface your products.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 text-foreground font-light">
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  One-click ACP feed
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  Hourly sync
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  Trend alerts
+                </span>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 shadow-lg shadow-accent/30 group">
+                <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 rounded-full shadow-lg shadow-accent/30 group">
                   <Link to="/signup">
                     Get ACP-Ready
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-foreground hover:text-accent text-lg font-medium">
+                <Button asChild variant="ghost" size="lg" className="text-foreground hover:text-accent text-lg font-medium rounded-full">
                   <a href="#features">
                     See Features
                     <ChevronDown className="ml-2 h-5 w-5" />
@@ -120,7 +134,7 @@ const Home = () => {
       {/* What is ACP Section */}
       <section id="acp" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-[60%_40%] gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -131,11 +145,17 @@ const Home = () => {
                 What is ACP & Why Now?
               </h2>
               <p className="text-muted-foreground mb-6 font-light">
-                AI shopping assistants like ChatGPT need structured product data to recommend items. 
-                ACP (AI Commerce Protocol) is the standard format they understand.
+                ACP (Agentic Commerce Protocol) lets AI shopping assistants like ChatGPT discover and recommend products.
+                Without an ACP feed, your Etsy shop is invisible to millions of AI-powered shoppers.
               </p>
               <div className="space-y-3">
-                {["Valid robots.txt", "Fresh feed updates", "Proper schema markup", "Error-free validation", "Optimized metadata"].map((item) => (
+                {[
+                  "ACP-compliant JSON feed hosted on your domain",
+                  "robots.txt configured for AI crawler access",
+                  "Hourly sync keeps inventory & pricing accurate",
+                  "Validation catches errors before AI sees them",
+                  "Optimized metadata improves product match quality"
+                ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
                       <Check className="h-4 w-4 text-accent" />
@@ -267,28 +287,6 @@ const Home = () => {
               </Link>
             </Button>
           </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <GlassCard className="p-12 text-center">
-            <div className="grid md:grid-cols-3 gap-8">
-              <div>
-                <div className="text-5xl font-bold text-accent mb-2">30K+</div>
-                <div className="text-muted-foreground">ACP Pushes Completed</div>
-              </div>
-              <div>
-                <div className="text-5xl font-bold text-accent mb-2">1.2M</div>
-                <div className="text-muted-foreground">Products Optimized</div>
-              </div>
-              <div>
-                <div className="text-5xl font-bold text-accent mb-2">98%</div>
-                <div className="text-muted-foreground">Feed Accuracy</div>
-              </div>
-            </div>
-          </GlassCard>
         </div>
       </section>
 

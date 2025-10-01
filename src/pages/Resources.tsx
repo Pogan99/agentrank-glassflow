@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 
 const Resources = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("All");
+
+  const filterTabs = ["All", "ACP Guides", "Etsy Tips"];
 
   const articles = [
     {
@@ -14,23 +17,23 @@ const Resources = () => {
       excerpt: "A comprehensive guide to understanding and implementing ACP feeds for your Etsy shop.",
       date: "March 15, 2025",
       readTime: "8 min read",
-      category: "Getting Started",
+      category: "ACP Guides",
       slug: "getting-started-with-acp"
     },
     {
-      title: "Optimizing Product Data for AI Discovery",
-      excerpt: "Learn how to structure your product information to maximize visibility in AI search results.",
+      title: "Optimizing Product Titles for AI Search",
+      excerpt: "Learn how to structure your product titles to maximize visibility in ChatGPT Shopping.",
       date: "March 10, 2025",
       readTime: "6 min read",
-      category: "Optimization",
-      slug: "optimizing-product-data"
+      category: "Etsy Tips",
+      slug: "optimizing-product-titles"
     },
     {
       title: "Understanding ChatGPT Shopping Behavior",
       excerpt: "Insights into how AI assistants recommend products and what factors influence their choices.",
       date: "March 5, 2025",
       readTime: "10 min read",
-      category: "Research",
+      category: "ACP Guides",
       slug: "chatgpt-shopping-behavior"
     },
     {
@@ -38,32 +41,36 @@ const Resources = () => {
       excerpt: "Stay ahead with the latest recommendations and standards for AI commerce protocols.",
       date: "February 28, 2025",
       readTime: "7 min read",
-      category: "Best Practices",
+      category: "ACP Guides",
       slug: "acp-best-practices-2025"
     },
     {
-      title: "Case Study: 300% Increase in AI Traffic",
-      excerpt: "How one Etsy seller used AgentRank to dramatically increase discoverability.",
+      title: "Etsy Tag Strategy for AI Discoverability",
+      excerpt: "How to choose tags that work for both human and AI shoppers on Etsy.",
       date: "February 20, 2025",
       readTime: "5 min read",
-      category: "Case Study",
-      slug: "case-study-ai-traffic"
+      category: "Etsy Tips",
+      slug: "etsy-tag-strategy"
     },
     {
-      title: "Common ACP Mistakes to Avoid",
-      excerpt: "Don't let these simple errors prevent AI assistants from finding your products.",
+      title: "Common ACP Feed Errors to Avoid",
+      excerpt: "Don't let these simple validation errors prevent AI assistants from finding your products.",
       date: "February 15, 2025",
       readTime: "6 min read",
-      category: "Troubleshooting",
-      slug: "common-acp-mistakes"
+      category: "ACP Guides",
+      slug: "common-acp-errors"
     }
   ];
 
-  const filteredArticles = articles.filter(article =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredArticles = articles.filter(article => {
+    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesFilter = selectedFilter === "All" || article.category === selectedFilter;
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen pt-24 pb-20">
@@ -86,7 +93,7 @@ const Resources = () => {
           </p>
 
           {/* Search Bar */}
-          <div className="max-w-xl mx-auto relative">
+          <div className="max-w-xl mx-auto relative mb-8">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <InputField
               type="text"
@@ -96,33 +103,58 @@ const Resources = () => {
               className="pl-12"
             />
           </div>
+
+          {/* Filter Tabs */}
+          <div className="flex justify-center gap-2 flex-wrap">
+            {filterTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setSelectedFilter(tab)}
+                className={`px-6 py-2 rounded-full transition-all font-medium ${
+                  selectedFilter === tab
+                    ? "bg-accent text-accent-foreground"
+                    : "glass-panel text-muted-foreground hover:text-foreground hover:bg-white/[0.12]"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
         {/* Articles Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((article, index) => (
-            <GlassCard key={index} className="p-6 cursor-pointer group">
-              <div className="flex items-center gap-2 text-sm text-accent mb-3">
-                <span className="font-semibold">{article.category}</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 group-hover:text-accent transition-colors">
-                {article.title}
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4 font-light line-clamp-2">
-                {article.excerpt}
-              </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>{article.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{article.readTime}</span>
-                  </div>
+            <GlassCard key={index} className="p-0 cursor-pointer group overflow-hidden">
+              {/* Thumbnail - 16:9 aspect ratio */}
+              <div className="aspect-video bg-gradient-to-br from-accent/20 via-accent/10 to-transparent relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <span className="text-sm font-semibold text-accent">{article.category}</span>
                 </div>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-accent transition-colors">
+                  {article.title}
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4 font-light line-clamp-2">
+                  {article.excerpt}
+                </p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>{article.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{article.readTime}</span>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </div>
               </div>
             </GlassCard>
           ))}

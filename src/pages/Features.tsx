@@ -6,68 +6,46 @@ const Features = () => {
   const features = [
     {
       icon: Zap,
-      title: "ACP Feed Builder",
-      description: "Generate fully compliant ACP feeds with a single click. No technical knowledge required.",
+      title: "ACP Feed Builder for Etsy",
+      description: "Connect your Etsy shop via OAuth and we'll instantly generate a standards-compliant ACP feed. No spreadsheets, no manual mapping—just one click to make your catalog AI-discoverable.",
       details: [
-        "Automatic schema generation",
-        "Real-time validation",
-        "Instant deployment",
-        "Version control"
+        "Automatic Etsy OAuth integration",
+        "Real-time ACP schema mapping",
+        "Hosted feed with CDN delivery",
+        "robots.txt configuration included"
       ]
     },
     {
       icon: RefreshCw,
-      title: "Auto-Sync & Validation",
-      description: "Keep your product feed fresh with automated synchronization and error checking.",
+      title: "Feed Hosting & Health",
+      description: "We host your ACP feed with 99.9% uptime and continuous validation. Get email or Slack alerts when errors are detected, so you can fix issues before AI shoppers see them.",
       details: [
-        "Daily automatic updates",
-        "Error detection & alerts",
-        "Inventory tracking",
-        "Price sync"
-      ]
-    },
-    {
-      icon: TrendingUp,
-      title: "Trend & Keyword Alerts",
-      description: "Stay ahead of AI shopping trends with intelligent notifications.",
-      details: [
-        "Keyword monitoring",
-        "Trend detection",
-        "Competitor insights",
-        "Custom alerts"
-      ]
-    },
-    {
-      icon: BarChart3,
-      title: "Ranking Snapshot",
-      description: "Track your product performance in AI search results over time.",
-      details: [
-        "Performance metrics",
-        "Visibility tracking",
-        "Historical data",
-        "Export reports"
-      ]
-    },
-    {
-      icon: Shield,
-      title: "Security & Compliance",
-      description: "Enterprise-grade security with full GDPR and data protection compliance.",
-      details: [
-        "Encrypted data",
-        "GDPR compliant",
-        "Regular audits",
-        "Secure hosting"
+        "Always-on feed hosting with CDN",
+        "Real-time validation against ACP spec",
+        "Error UI with actionable fix suggestions",
+        "Health dashboard with uptime metrics"
       ]
     },
     {
       icon: Clock,
-      title: "24/7 Monitoring",
-      description: "Round-the-clock feed monitoring ensures your products are always discoverable.",
+      title: "Auto-Sync & Jobs",
+      description: "Set it and forget it. AgentRank syncs your Etsy inventory on a schedule (hourly for Pro, daily for Starter, weekly for Free). Event triggers re-sync when you update listings.",
       details: [
-        "Uptime monitoring",
-        "Instant alerts",
-        "Auto-recovery",
-        "Status dashboard"
+        "Scheduled cron jobs (hourly/daily/weekly)",
+        "Event-based triggers on Etsy updates",
+        "Configurable sync windows",
+        "Job history & logs"
+      ]
+    },
+    {
+      icon: TrendingUp,
+      title: "Trend-Aware Automation",
+      description: "When AI search trends surge for keywords in your niche, we detect it and suggest title/tag updates. Review and approve changes, then we push them to Etsy automatically.",
+      details: [
+        "AI search trend monitoring",
+        "Auto-generated title & tag suggestions",
+        "Approve/reject workflow",
+        "One-click push to Etsy API"
       ]
     }
   ];

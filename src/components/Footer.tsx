@@ -7,7 +7,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
             <h3 className="text-xl font-bold bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent mb-4">
-              AgentRanked
+              AgentRank
             </h3>
             <p className="text-sm text-muted-foreground">
               Auto-build ACP feeds for Etsy shops.
@@ -60,7 +60,7 @@ export const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-white/10 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2025 AgentRanked. All rights reserved.
+            © 2025 AgentRank. All rights reserved.
           </p>
         </div>
       </div>
