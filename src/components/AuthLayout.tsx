@@ -18,7 +18,7 @@ export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProp
 
       {/* Right Panel - Hero Image */}
       <div className="flex-1 relative bg-cover bg-left min-h-[300px] lg:min-h-screen"
-           style={{ backgroundImage: "url('/newlog.jpg')", backgroundPosition: 'left center' }}>
+           style={{ backgroundImage: "url('/login-image.svg')", backgroundPosition: 'left center' }}>
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/10" />
 
