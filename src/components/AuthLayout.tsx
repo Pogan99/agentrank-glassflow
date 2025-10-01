@@ -20,7 +20,7 @@ export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProp
       <div className="flex-1 relative bg-cover bg-center min-h-[300px] lg:min-h-screen"
            style={{ backgroundImage: "url('/newlog.jpg')" }}>
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/10" />
 
         {/* Content */}
         <div className="relative h-full flex flex-col justify-between p-8 lg:p-12 text-white">
