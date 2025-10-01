@@ -100,8 +100,8 @@ const Signup = () => {
 
   return (
     <AuthLayout
-      heroTitle="Turn your passion into a business."
-      heroSubtitle="Sign up to AgentRank and unlock the tools you need to start, run, and grow your Etsy shop."
+      heroTitle=""
+      heroSubtitle=""
     >
       <div className="space-y-6">
         {/* Logo */}
