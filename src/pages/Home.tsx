@@ -91,61 +91,78 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="glass-frost rounded-3xl p-12 md:p-16 text-center relative overflow-hidden min-h-[60vh] flex flex-col justify-center backdrop-blur-xl border border-white/10 shadow-2xl"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-transparent opacity-70" />
-            <div className="relative z-10">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Get your Etsy shop discovered by{" "}
-                <span className="bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent drop-shadow">
-                  AI shoppers
-                </span>
-              </h1>
-              <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto font-light">
-                AgentRank auto-builds and hosts an ACP feed so ChatGPT can surface your products.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 text-foreground font-light">
-                {["One-click ACP feed", "Hourly sync", "Trend alerts"].map((text) => (
-                  <span key={text} className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-accent shadow-accent shadow-md" />
-                    {text}
-                  </span>
-                ))}
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 rounded-full shadow-lg shadow-accent/30 group"
-                >
-                  <Link to="/signup">
-                    Get ACP-Ready
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="lg"
-                  className="text-foreground hover:text-accent text-lg font-medium rounded-full"
-                >
-                  <a href="#features">
-                    See Features
-                    <ChevronDown className="ml-2 h-5 w-5" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </motion.div>
+   {/* Hero Section */}
+<section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative">
+  <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+    {/* Left side (text + buttons) */}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="glass-frost rounded-3xl p-12 md:p-16 relative overflow-hidden backdrop-blur-xl border border-white/10 shadow-2xl"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-transparent opacity-70" />
+      <div className="relative z-10">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          Get your Etsy shop discovered by{" "}
+          <span className="bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent drop-shadow">
+            AI shoppers
+          </span>
+        </h1>
+        <p className="text-xl text-muted-foreground mb-6 max-w-2xl font-light">
+          AgentRank auto-builds and hosts an ACP feed so ChatGPT can surface your products.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 text-foreground font-light">
+          {["One-click ACP feed", "Hourly sync", "Trend alerts"].map((text) => (
+            <span key={text} className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent shadow-accent shadow-md" />
+              {text}
+            </span>
+          ))}
         </div>
-      </section>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button
+            asChild
+            size="lg"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 rounded-full shadow-lg shadow-accent/30 group"
+          >
+            <Link to="/signup">
+              Get ACP-Ready
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="lg"
+            className="text-foreground hover:text-accent text-lg font-medium rounded-full"
+          >
+            <a href="#features">
+              See Features
+              <ChevronDown className="ml-2 h-5 w-5" />
+            </a>
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+
+    {/* Right side (Hero image) */}
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8 }}
+      className="relative flex justify-center items-center"
+    >
+      <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/10 backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5">
+        <img
+          src="/Hero.png"   // <-- make sure your image is inside /public as Hero.png
+          alt="Etsy seller at work"
+          className="w-full h-auto object-cover rounded-3xl"
+        />
+      </div>
+    </motion.div>
+  </div>
+</section>
 
       {/* What is ACP Section */}
       <section id="acp" className="py-20 px-4 sm:px-6 lg:px-8">
