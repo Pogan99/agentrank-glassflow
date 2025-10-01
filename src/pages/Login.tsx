@@ -86,8 +86,8 @@ const Login = () => {
 
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in to AgentRanked</h2>
-          <p className="text-gray-600">Welcome back! Please enter your details.</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Sign in to AgentRanked</h2>
+          <p className="text-muted-foreground">Welcome back! Please enter your details.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -106,7 +106,7 @@ const Login = () => {
 
           {/* Email Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Email
             </label>
             <input
@@ -119,10 +119,10 @@ const Login = () => {
               onBlur={handleEmailBlur}
               onFocus={() => setError("")}
               disabled={emailSent}
-              className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-all text-gray-900 placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
                 error
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  : "border-white/20 focus:ring-accent focus:border-accent"
               }`}
               placeholder="you@example.com"
               autoComplete="email"
@@ -137,9 +137,9 @@ const Login = () => {
         </form>
 
         {/* Footer Link */}
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+          <Link to="/signup" className="text-accent hover:text-accent/80 font-semibold underline">
             Sign up
           </Link>
         </p>

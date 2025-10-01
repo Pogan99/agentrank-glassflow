@@ -8,10 +8,13 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children, heroTitle, heroSubtitle }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* Left Panel - Form */}
-      <div className="flex-1 bg-white flex items-center justify-center px-4 py-12 lg:py-0">
-        <div className="w-full max-w-[400px]">
+      <div className="flex-1 flex items-center justify-center px-4 py-12 lg:py-0 relative">
+        {/* Glass morphism background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent opacity-50" />
+
+        <div className="w-full max-w-[400px] glass-frost rounded-3xl p-8 backdrop-blur-xl border border-white/10 shadow-2xl relative z-10">
           {children}
         </div>
       </div>

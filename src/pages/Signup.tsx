@@ -115,8 +115,8 @@ const Signup = () => {
 
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Create an account</h2>
-          <p className="text-gray-600">Sign up for a free AgentRank account</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Create an account</h2>
+          <p className="text-muted-foreground">Sign up for a free AgentRanked account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,7 +148,7 @@ const Signup = () => {
               >
                 {/* Name Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Name
                   </label>
                   <input
@@ -157,10 +157,10 @@ const Signup = () => {
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     onFocus={() => errors.name && setErrors({ ...errors, name: "" })}
                     disabled={emailSent}
-                    className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-all text-gray-900 placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.name
                         ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        : "border-white/20 focus:ring-accent focus:border-accent"
                     }`}
                     placeholder="Enter your name"
                     maxLength={100}
@@ -170,7 +170,7 @@ const Signup = () => {
 
                 {/* Email Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Email
                   </label>
                   <input
@@ -180,10 +180,10 @@ const Signup = () => {
                     onBlur={handleEmailBlur}
                     onFocus={() => errors.email && setErrors({ ...errors, email: "" })}
                     disabled={emailSent}
-                    className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-all text-gray-900 placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.email
                         ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        : "border-white/20 focus:ring-accent focus:border-accent"
                     }`}
                     placeholder="Enter your email"
                   />
@@ -200,13 +200,13 @@ const Signup = () => {
 
           {/* Terms Text (only shown when not expanded) */}
           {!isExpanded && (
-            <p className="text-xs text-center text-gray-600">
+            <p className="text-xs text-center text-muted-foreground">
               By signing up you agree to our{" "}
-              <a href="#" className="text-blue-600 hover:text-blue-700 underline">
+              <a href="#" className="text-accent hover:text-accent/80 underline">
                 Privacy Policy
               </a>{" "}
               and{" "}
-              <a href="#" className="text-blue-600 hover:text-blue-700 underline">
+              <a href="#" className="text-accent hover:text-accent/80 underline">
                 Terms of Service
               </a>
             </p>
@@ -214,9 +214,9 @@ const Signup = () => {
         </form>
 
         {/* Footer Link */}
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-muted-foreground">
           Already signed up?{" "}
-          <Link to="/login" className="text-[#2D5BFF] font-semibold hover:underline">
+          <Link to="/login" className="text-accent hover:text-accent/80 font-semibold underline">
             Sign in
           </Link>
         </p>
