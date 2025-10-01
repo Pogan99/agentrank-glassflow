@@ -13,7 +13,12 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/dashboard/Dashboard";
 import DashboardProducts from "./pages/dashboard/Products";
+import Optimize from "./pages/dashboard/Optimize";
+import Alerts from "./pages/dashboard/Alerts";
+import Analytics from "./pages/dashboard/Analytics";
+import Settings from "./pages/dashboard/Settings";
 
 const queryClient = new QueryClient();
 
@@ -36,8 +41,12 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Dashboard routes (own layout) */}
-          <Route path="/dashboard" element={<DashboardProducts />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/products" element={<DashboardProducts />} />
+          <Route path="/dashboard/optimize" element={<Optimize />} />
+          <Route path="/dashboard/alerts" element={<Alerts />} />
+          <Route path="/dashboard/analytics" element={<Analytics />} />
+          <Route path="/dashboard/settings" element={<Settings />} />
 
           {/* 404 */}
           <Route path="*" element={<><GlassNav /><NotFound /><Footer /></>} />
