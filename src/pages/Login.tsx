@@ -75,8 +75,8 @@ const Login = () => {
 
   return (
     <AuthLayout
-      heroTitle="Welcome back!"
-      heroSubtitle="Experience our new and improved tools for your Etsy shop. Please sign in again to unlock the next level of growth."
+      heroTitle=""
+      heroSubtitle=""
     >
       <div className="space-y-6">
         {/* Logo */}
