@@ -19,6 +19,10 @@ import Optimize from "./pages/dashboard/Optimize";
 import Alerts from "./pages/dashboard/Alerts";
 import Analytics from "./pages/dashboard/Analytics";
 import Settings from "./pages/dashboard/Settings";
+import Welcome from "./pages/onboarding/Welcome";
+import ConnectStore from "./pages/onboarding/ConnectStore";
+import OnboardingPricing from "./pages/onboarding/Pricing";
+import Setup from "./pages/onboarding/Setup";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +43,12 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Onboarding routes (no nav/footer) */}
+          <Route path="/onboarding/welcome" element={<Welcome />} />
+          <Route path="/onboarding/connect-store" element={<ConnectStore />} />
+          <Route path="/onboarding/pricing" element={<OnboardingPricing />} />
+          <Route path="/onboarding/setup" element={<Setup />} />
 
           {/* Dashboard routes (own layout) */}
           <Route path="/dashboard" element={<Dashboard />} />
