@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
+import DashboardProducts from "./pages/dashboard/Products";
 
 const queryClient = new QueryClient();
 
@@ -22,18 +23,24 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <GlassNav />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/resources" element={<Resources />} />
+          {/* Public routes with GlassNav + Footer */}
+          <Route path="/" element={<><GlassNav /><Home /><Footer /></>} />
+          <Route path="/features" element={<><GlassNav /><Features /><Footer /></>} />
+          <Route path="/pricing" element={<><GlassNav /><Pricing /><Footer /></>} />
+          <Route path="/resources" element={<><GlassNav /><Resources /><Footer /></>} />
+
+          {/* Auth routes (no nav/footer) */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="*" element={<NotFound />} />
+
+          {/* Dashboard routes (own layout) */}
+          <Route path="/dashboard/products" element={<DashboardProducts />} />
+
+          {/* 404 */}
+          <Route path="*" element={<><GlassNav /><NotFound /><Footer /></>} />
         </Routes>
-        <Footer />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
