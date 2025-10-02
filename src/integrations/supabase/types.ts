@@ -14,7 +14,424 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      acp_feeds: {
+        Row: {
+          created_at: string | null
+          feed_data: Json
+          feed_url: string
+          id: string
+          last_generated_at: string | null
+          last_validated_at: string | null
+          next_sync_at: string | null
+          overall_score: number | null
+          products_excluded: number | null
+          products_included: number | null
+          user_id: string
+          validation_errors: Json | null
+          validation_warnings: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          feed_data: Json
+          feed_url: string
+          id?: string
+          last_generated_at?: string | null
+          last_validated_at?: string | null
+          next_sync_at?: string | null
+          overall_score?: number | null
+          products_excluded?: number | null
+          products_included?: number | null
+          user_id: string
+          validation_errors?: Json | null
+          validation_warnings?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          feed_data?: Json
+          feed_url?: string
+          id?: string
+          last_generated_at?: string | null
+          last_validated_at?: string | null
+          next_sync_at?: string | null
+          overall_score?: number | null
+          products_excluded?: number | null
+          products_included?: number | null
+          user_id?: string
+          validation_errors?: Json | null
+          validation_warnings?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acp_feeds_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alerts: {
+        Row: {
+          action_url: string | null
+          alert_type: string | null
+          created_at: string | null
+          dismissed: boolean | null
+          id: string
+          message: string
+          products_affected: string[] | null
+          read: boolean | null
+          severity: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          alert_type?: string | null
+          created_at?: string | null
+          dismissed?: boolean | null
+          id?: string
+          message: string
+          products_affected?: string[] | null
+          read?: boolean | null
+          severity?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          alert_type?: string | null
+          created_at?: string | null
+          dismissed?: boolean | null
+          id?: string
+          message?: string
+          products_affected?: string[] | null
+          read?: boolean | null
+          severity?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      optimizations: {
+        Row: {
+          after_data: Json
+          applied: boolean | null
+          applied_at: string | null
+          applied_fields: string[] | null
+          before_data: Json
+          confidence_scores: Json | null
+          created_at: string | null
+          id: string
+          image_analysis: Json | null
+          product_id: string
+          reasoning: Json | null
+          user_id: string
+        }
+        Insert: {
+          after_data: Json
+          applied?: boolean | null
+          applied_at?: string | null
+          applied_fields?: string[] | null
+          before_data: Json
+          confidence_scores?: Json | null
+          created_at?: string | null
+          id?: string
+          image_analysis?: Json | null
+          product_id: string
+          reasoning?: Json | null
+          user_id: string
+        }
+        Update: {
+          after_data?: Json
+          applied?: boolean | null
+          applied_at?: string | null
+          applied_fields?: string[] | null
+          before_data?: Json
+          confidence_scores?: Json | null
+          created_at?: string | null
+          id?: string
+          image_analysis?: Json | null
+          product_id?: string
+          reasoning?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "optimizations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimizations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          acp_compliant: boolean | null
+          acp_score: number | null
+          body_html: string | null
+          compare_at_price: number | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          featured_image: string | null
+          handle: string | null
+          id: string
+          images: Json | null
+          inventory_policy: string | null
+          inventory_quantity: number | null
+          last_synced_at: string | null
+          missing_fields: string[] | null
+          price: number | null
+          product_type: string | null
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          shopify_product_id: string
+          shopify_variant_id: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          vendor: string | null
+        }
+        Insert: {
+          acp_compliant?: boolean | null
+          acp_score?: number | null
+          body_html?: string | null
+          compare_at_price?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          featured_image?: string | null
+          handle?: string | null
+          id?: string
+          images?: Json | null
+          inventory_policy?: string | null
+          inventory_quantity?: number | null
+          last_synced_at?: string | null
+          missing_fields?: string[] | null
+          price?: number | null
+          product_type?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          shopify_product_id: string
+          shopify_variant_id?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          vendor?: string | null
+        }
+        Update: {
+          acp_compliant?: boolean | null
+          acp_score?: number | null
+          body_html?: string | null
+          compare_at_price?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          featured_image?: string | null
+          handle?: string | null
+          id?: string
+          images?: Json | null
+          inventory_policy?: string | null
+          inventory_quantity?: number | null
+          last_synced_at?: string | null
+          missing_fields?: string[] | null
+          price?: number | null
+          product_type?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          shopify_product_id?: string
+          shopify_variant_id?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          job_type: string | null
+          processed_items: number | null
+          result_data: Json | null
+          started_at: string | null
+          status: string | null
+          total_items: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string | null
+          processed_items?: number | null
+          result_data?: Json | null
+          started_at?: string | null
+          status?: string | null
+          total_items?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string | null
+          processed_items?: number | null
+          result_data?: Json | null
+          started_at?: string | null
+          status?: string | null
+          total_items?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_jobs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          billing_cycle: string | null
+          created_at: string | null
+          credits_reset_at: string | null
+          email: string
+          id: string
+          last_sync_at: string | null
+          name: string | null
+          onboarding_completed: boolean | null
+          optimization_credits_limit: number | null
+          optimization_credits_used: number | null
+          plan: string | null
+          shopify_access_token: string | null
+          shopify_scope: string | null
+          shopify_shop_domain: string | null
+          stripe_customer_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          credits_reset_at?: string | null
+          email: string
+          id: string
+          last_sync_at?: string | null
+          name?: string | null
+          onboarding_completed?: boolean | null
+          optimization_credits_limit?: number | null
+          optimization_credits_used?: number | null
+          plan?: string | null
+          shopify_access_token?: string | null
+          shopify_scope?: string | null
+          shopify_shop_domain?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          credits_reset_at?: string | null
+          email?: string
+          id?: string
+          last_sync_at?: string | null
+          name?: string | null
+          onboarding_completed?: boolean | null
+          optimization_credits_limit?: number | null
+          optimization_credits_used?: number | null
+          plan?: string | null
+          shopify_access_token?: string | null
+          shopify_scope?: string | null
+          shopify_shop_domain?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+          shopify_topic: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          shopify_topic: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          shopify_topic?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
