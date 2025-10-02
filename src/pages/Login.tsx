@@ -71,8 +71,8 @@ const Login = () => {
 
   return (
     <AuthLayout
-      heroTitle=""
-      heroSubtitle=""
+      heroTitle="Welcome back! Optimize your Shopify catalog for ChatGPT Shopping."
+      heroSubtitle="Sign in to continue optimizing your products for AI discovery."
     >
       <div className="space-y-6">
         {/* Logo */}

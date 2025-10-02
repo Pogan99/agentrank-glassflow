@@ -100,8 +100,8 @@ const Signup = () => {
 
   return (
     <AuthLayout
-      heroTitle=""
-      heroSubtitle=""
+      heroTitle="Turn your Shopify store into an AI-ready commerce engine"
+      heroSubtitle="Get discovered in ChatGPT Shopping with AgentRanked's automated ACP optimization."
     >
       <div className="space-y-6">
         {/* Logo */}

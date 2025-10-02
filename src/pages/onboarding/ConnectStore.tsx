@@ -6,12 +6,8 @@ const ConnectStore = () => {
   const navigate = useNavigate();
 
   const handleConnectShop = () => {
-    // Trigger Etsy OAuth
-    window.location.href = "/api/etsy/oauth";
-  };
-
-  const handleSkip = () => {
-    navigate("/onboarding/pricing");
+    // Trigger Shopify OAuth
+    window.location.href = "/api/shopify/oauth";
   };
 
   return (
@@ -28,19 +24,19 @@ const ConnectStore = () => {
             <Zap className="w-8 h-8 text-accent" />
           </div>
           <span className="text-2xl text-muted-foreground">+</span>
-          <div className="w-16 h-16 rounded-full bg-[#F1641E]/20 flex items-center justify-center">
-            <span className="text-2xl font-bold text-[#F1641E]">E</span>
+          <div className="w-16 h-16 rounded-full bg-[#96BF48]/20 flex items-center justify-center">
+            <span className="text-2xl font-bold text-[#96BF48]">S</span>
           </div>
         </div>
 
         {/* Heading */}
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
-          Get All the Benefits From This Session
+          Connect Your Shopify Store
         </h1>
 
         {/* Subheading */}
         <p className="text-lg text-muted-foreground mb-8 font-light max-w-xl mx-auto">
-          By connecting your Etsy shop, you unlock tools for ACP feed generation, listing optimization, and real-time sync with ChatGPT Shopping.
+          By connecting your Shopify store, you unlock ACP feed generation, product optimization, and real-time sync with ChatGPT Shopping.
         </p>
 
         {/* Trust Badge */}
@@ -68,7 +64,7 @@ const ConnectStore = () => {
 
             {/* Text */}
             <span className="text-sm font-medium text-foreground">
-              4.8 · Trusted by 600,000+ Etsy sellers
+              4.8 · Helping Shopify merchants get discovered
             </span>
           </div>
         </div>
@@ -79,15 +75,8 @@ const ConnectStore = () => {
             onClick={handleConnectShop}
             className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 py-4 rounded-full shadow-lg shadow-accent/30 transition-all inline-flex items-center justify-center gap-2"
           >
-            Yes, connect my shop
+            Connect Shopify
             <ArrowRight className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={handleSkip}
-            className="w-full text-foreground hover:text-accent font-medium text-lg px-8 py-4 rounded-full transition-all"
-          >
-            No, I'll do this later
           </button>
         </div>
 

@@ -27,7 +27,7 @@ const Welcome = () => {
 
         {/* Subheading */}
         <p className="text-xl text-muted-foreground mb-8 font-light max-w-xl mx-auto">
-          Get your Etsy products discovered in ChatGPT Shopping. We'll optimize your catalog for AI agents—automatically.
+          Get your Shopify products discovered in ChatGPT Shopping. We'll optimize your catalog for AI agents—automatically.
         </p>
 
         {/* Trust Badge */}

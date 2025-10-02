@@ -24,7 +24,7 @@ const Home = () => {
     {
       icon: Zap,
       title: "ACP Feed Builder",
-      description: "Connect Etsy via OAuth. We map your catalog to ACP spec instantly.",
+      description: "Connect Shopify via OAuth. We map your catalog to ACP spec instantly.",
     },
     {
       icon: RefreshCw,
@@ -38,8 +38,8 @@ const Home = () => {
     },
     {
       icon: BarChart3,
-      title: "Ranking Snapshot",
-      description: "See how you rank in your Etsy category vs competitors.",
+      title: "ChatGPT Shopping Optimization",
+      description: "Optimize your products for discovery in ChatGPT Shopping results.",
     },
   ];
 
@@ -66,16 +66,16 @@ const Home = () => {
     {
       question: "What is ACP and why do I need it?",
       answer:
-        "ACP (Agentic Commerce Protocol) is the standard that AI assistants like ChatGPT use to discover products. Without an ACP feed, your Etsy shop is invisible to millions of AI-powered shoppers who use ChatGPT Shopping.",
+        "ACP (Agentic Commerce Protocol) is the standard that AI assistants like ChatGPT use to discover products. Without an ACP feed, your Shopify store is invisible to millions of AI-powered shoppers who use ChatGPT Shopping.",
     },
     {
       question: "How quickly can I get set up?",
       answer:
-        "Most shops are ACP-ready in under 5 minutes. Just connect your Etsy store via OAuth and we'll generate your feed automatically.",
+        "Most stores are ACP-ready in under 5 minutes. Just connect your Shopify store via OAuth and we'll generate your feed automatically.",
     },
     {
       question: "Do I need technical knowledge?",
-      answer: "Not at all! AgentRank automates everything. No coding, no spreadsheets, no manual work.",
+      answer: "Not at all! AgentRanked automates everything. No coding, no spreadsheets, no manual work.",
     },
     {
       question: "How often does the feed update?",
@@ -105,16 +105,16 @@ const Home = () => {
         {/* Text content */}
         <div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Get your Shopify store discovered by{" "}
+            Get your Shopify products discovered in{" "}
             <span className="bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent drop-shadow">
-              AI shoppers
+              ChatGPT Shopping
             </span>
           </h1>
           <p className="text-xl text-muted-foreground mb-6 max-w-2xl font-light">
-            AgentRank auto-builds and hosts an ACP feed so ChatGPT can surface your products.
+            AgentRanked auto-builds and hosts an ACP feed so ChatGPT can surface your products.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mb-8 text-foreground font-light">
-            {["One-click ACP feed", "Hourly sync", "Trend alerts"].map((text) => (
+            {["Shopify-powered ACP feed", "Hourly sync", "Trend alerts"].map((text) => (
               <span key={text} className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-accent shadow-accent shadow-md" />
                 {text}
@@ -156,7 +156,7 @@ const Home = () => {
           <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/10 backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5">
             <img
               src="/shopify.png"
-              alt="Etsy seller at work"
+              alt="Shopify merchant dashboard"
               className="w-full h-auto object-cover rounded-3xl"
             />
           </div>
@@ -178,8 +178,8 @@ const Home = () => {
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-6">What is ACP & Why Now?</h2>
             <p className="text-muted-foreground mb-6 font-light">
-              ACP (Agentic Commerce Protocol) lets AI shopping assistants like ChatGPT discover and recommend products.
-              Without an ACP feed, your Etsy shop is invisible to millions of AI-powered shoppers.
+              Based on the official Shopify-OpenAI partnership, ChatGPT can now discover and recommend products from Shopify stores.
+              Without an optimized ACP feed, your products remain invisible to millions of AI-powered shoppers.
             </p>
             <div className="space-y-3">
               {[
@@ -208,13 +208,13 @@ const Home = () => {
 {`{
   "products": [
     {
-      "id": "etsy-12345",
+      "id": "shopify-12345",
       "name": "Handcrafted Mug",
       "price": 24.99,
       "currency": "USD",
       "availability": "in_stock",
-      "url": "https://etsy.com/...",
-      "image": "https://cdn.etsy/..."
+      "url": "https://shop.example.com/...",
+      "image": "https://cdn.shopify.com/..."
     }
   ]
 }`}
@@ -236,7 +236,7 @@ const Home = () => {
             <GlassCard className="p-8 backdrop-blur-lg border border-white/10 shadow-xl">
               <div className="text-red-400 font-semibold mb-4">❌ Manual Approach</div>
               <ul className="space-y-3 text-muted-foreground">
-                <li>• Export CSV from Etsy</li>
+                <li>• Export CSV from Shopify</li>
                 <li>• Format spreadsheet manually</li>
                 <li>• Upload to hosting</li>
                 <li>• Configure robots.txt</li>
@@ -244,10 +244,10 @@ const Home = () => {
               </ul>
             </GlassCard>
             <GlassCard className="p-8 bg-gradient-to-br from-accent/10 to-transparent backdrop-blur-lg border border-white/10 shadow-xl">
-              <div className="text-accent font-semibold mb-4">✓ AgentRank Way</div>
+              <div className="text-accent font-semibold mb-4">✓ AgentRanked Way</div>
               <ul className="space-y-3 text-foreground">
-                <li>• Connect Etsy once</li>
-                <li>• Auto-sync daily</li>
+                <li>• Connect Shopify once</li>
+                <li>• Auto-sync hourly</li>
                 <li>• Validation included</li>
                 <li>• Hosting included</li>
                 <li>• Set and forget</li>
@@ -263,7 +263,7 @@ const Home = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need</h2>
             <p className="text-muted-foreground text-lg font-light">
-              Built for Etsy sellers, powered by automation
+              Built for Shopify merchants, powered by automation
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -367,7 +367,7 @@ const Home = () => {
           <GlassCard className="p-12 text-center bg-gradient-to-br from-accent/10 to-transparent backdrop-blur-lg border border-white/10 shadow-xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to get discovered?</h2>
             <p className="text-muted-foreground mb-8 text-lg font-light">
-              Join thousands of Etsy sellers who are already ACP-ready.
+              Join hundreds of Shopify merchants who are already ACP-ready.
             </p>
             <Button
               asChild

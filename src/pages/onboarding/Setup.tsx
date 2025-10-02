@@ -18,7 +18,7 @@ const Setup = () => {
   const [storeConnected, setStoreConnected] = useState(false);
 
   const [steps, setSteps] = useState<SetupStep[]>([
-    { id: 1, label: "Connecting to Etsy", status: "pending" },
+    { id: 1, label: "Connecting to Shopify", status: "pending" },
     { id: 2, label: "Importing products", status: "pending" },
     { id: 3, label: "Generating ACP feed", status: "pending" },
     { id: 4, label: "Analyzing optimization opportunities", status: "pending" },
@@ -50,7 +50,7 @@ const Setup = () => {
       return;
     }
 
-    // Step 1: Connect to Etsy (instant)
+    // Step 1: Connect to Shopify (instant)
     setSteps((prev) => prev.map((s) => (s.id === 1 ? { ...s, status: "loading" } : s)));
     await delay(500);
     setSteps((prev) => prev.map((s) => (s.id === 1 ? { ...s, status: "completed" } : s)));
@@ -134,8 +134,8 @@ const Setup = () => {
           {/* Dynamic Message */}
           <p className="text-lg text-muted-foreground mb-8 font-light max-w-xl mx-auto">
             {storeConnected
-              ? `Your Etsy shop is connected and we've found ${productCount} products ready to optimize for ChatGPT Shopping.`
-              : "You're ready to explore AgentRanked. Connect your Etsy shop anytime from the dashboard to start optimizing."}
+              ? `Your Shopify store is connected and we've found ${productCount} products ready to optimize for ChatGPT Shopping.`
+              : "You're ready to explore AgentRanked. Connect your Shopify store anytime from the dashboard to start optimizing."}
           </p>
 
           {/* CTA Button */}
