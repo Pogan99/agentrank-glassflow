@@ -1,3 +1,21 @@
-// Placeholder for reset-credits Edge Function
-// This function will reset monthly credits for all users
-// Implementation to be added separately
+// supabase/functions/reset-credits/index.ts
+// Run daily at midnight
+
+serve(async () => {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL'),
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  )
+  
+  const now = new Date()
+  
+  // Reset credits for users whose reset date has passed
+  await supabase.from('user_profiles')
+    .update({
+      optimization_credits_used: 0,
+      credits_reset_at: new Date(now.getTime() + 24*60*60*1000).toISOString()
+    })
+    .lt('credits_reset_at', now.toISOString())
+  
+  return new Response(JSON.stringify({ success: true }))
+})
