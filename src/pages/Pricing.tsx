@@ -24,7 +24,7 @@ const Pricing = () => {
     },
     {
       question: "What are 'ACP optimizations'?",
-      answer: "These are automated updates we push back to your Etsy listings to improve discoverability by AI. They include title tweaks, tag suggestions, and description improvements based on trending AI search patterns."
+      answer: "These are automated updates we push back to your Shopify products to improve discoverability by AI. They include title tweaks, tag suggestions, and description improvements based on trending AI search patterns."
     },
     {
       question: "Do you offer refunds?",

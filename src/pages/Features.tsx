@@ -6,10 +6,10 @@ const Features = () => {
   const features = [
     {
       icon: Zap,
-      title: "ACP Feed Builder for Etsy",
-      description: "Connect your Etsy shop via OAuth and we'll instantly generate a standards-compliant ACP feed. No spreadsheets, no manual mapping—just one click to make your catalog AI-discoverable.",
+      title: "ACP Feed Builder for Shopify",
+      description: "Connect your Shopify store via OAuth and we'll instantly generate a standards-compliant ACP feed. No spreadsheets, no manual mapping—just one click to make your catalog AI-discoverable.",
       details: [
-        "Automatic Etsy OAuth integration",
+        "Native Shopify OAuth integration",
         "Real-time ACP schema mapping",
         "Hosted feed with CDN delivery",
         "robots.txt configuration included"
@@ -29,23 +29,23 @@ const Features = () => {
     {
       icon: Clock,
       title: "Auto-Sync & Jobs",
-      description: "Set it and forget it. AgentRank syncs your Etsy inventory on a schedule (hourly for Pro, daily for Starter, weekly for Free). Event triggers re-sync when you update listings.",
+      description: "Set it and forget it. AgentRanked syncs your Shopify inventory on a schedule (hourly for Pro, daily for Starter, weekly for Free). Event triggers re-sync when you update products.",
       details: [
         "Scheduled cron jobs (hourly/daily/weekly)",
-        "Event-based triggers on Etsy updates",
+        "Event-based triggers on Shopify updates",
         "Configurable sync windows",
         "Job history & logs"
       ]
     },
     {
       icon: TrendingUp,
-      title: "Trend-Aware Automation",
-      description: "When AI search trends surge for keywords in your niche, we detect it and suggest title/tag updates. Review and approve changes, then we push them to Etsy automatically.",
+      title: "ChatGPT Shopping Optimization",
+      description: "When AI search trends surge for keywords in your niche, we detect it and suggest title/tag updates. Review and approve changes, then we push them to Shopify automatically.",
       details: [
         "AI search trend monitoring",
         "Auto-generated title & tag suggestions",
         "Approve/reject workflow",
-        "One-click push to Etsy API"
+        "One-click push to Shopify API"
       ]
     }
   ];
@@ -67,7 +67,7 @@ const Features = () => {
             </span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            Everything you need to make your Etsy shop discoverable by AI shopping assistants
+            Everything you need to make your Shopify store discoverable by AI shopping assistants
           </p>
         </motion.div>
 

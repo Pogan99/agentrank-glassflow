@@ -10,7 +10,7 @@ const Settings = () => {
 
   const [settings, setSettings] = useState({
     // Store Connection
-    etsyShopName: "YourEtsyShop",
+    shopifyStoreName: "YourShopifyStore",
     syncFrequency: "hourly",
 
     // Notifications
@@ -35,7 +35,7 @@ const Settings = () => {
   };
 
   const handleDisconnect = () => {
-    setToast({ message: "Store disconnected. Reconnect to continue using AgentRank.", type: "warning" });
+    setToast({ message: "Store disconnected. Reconnect to continue using AgentRanked.", type: "warning" });
   };
 
   return (
@@ -58,12 +58,12 @@ const Settings = () => {
 
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-2">
-              Etsy Shop Name
+              Shopify Store Name
             </label>
             <input
               type="text"
-              value={settings.etsyShopName}
-              onChange={(e) => setSettings({ ...settings, etsyShopName: e.target.value })}
+              value={settings.shopifyStoreName}
+              onChange={(e) => setSettings({ ...settings, shopifyStoreName: e.target.value })}
               className="w-full px-4 py-3 glass-panel rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
