@@ -105,7 +105,7 @@ const Home = () => {
         {/* Text content */}
         <div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Get your Etsy shop discovered by{" "}
+            Get your Shopify store discovered by{" "}
             <span className="bg-gradient-to-r from-accent to-cyan-300 bg-clip-text text-transparent drop-shadow">
               AI shoppers
             </span>
@@ -155,7 +155,7 @@ const Home = () => {
         >
           <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/10 backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5">
             <img
-              src="/Hero.png"
+              src="/shopify.png"
               alt="Etsy seller at work"
               className="w-full h-auto object-cover rounded-3xl"
             />
