@@ -1,1 +1,16 @@
 project_id = "qrxtifofjyifyfyqrqjg"
+
+[functions.import-shopify-products]
+verify_jwt = true
+
+[functions.analyze-product]
+verify_jwt = true
+
+[functions.apply-optimization]
+verify_jwt = true
+
+[functions.generate-acp-feed]
+verify_jwt = true
+
+[functions.shopify-webhook]
+verify_jwt = false
