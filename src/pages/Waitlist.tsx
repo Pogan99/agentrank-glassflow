@@ -4,8 +4,6 @@ import { useSearchParams } from "react-router-dom";
 import { Copy, ExternalLink, Mail, Sparkles, CheckCircle2 } from "lucide-react";
 
 import { GlassCard } from "@/components/GlassCard";
-import { GlassNav } from "@/components/GlassNav";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -238,8 +236,6 @@ const Waitlist = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <GlassNav />
-      
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.18),_transparent_55%)]" />
       <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_bottom,_rgba(26,86,219,0.16),_transparent_55%)]" />
 
@@ -453,8 +449,6 @@ const Waitlist = () => {
           </motion.section>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 };
