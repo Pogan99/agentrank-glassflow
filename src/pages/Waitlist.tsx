@@ -263,10 +263,10 @@ const Waitlist = () => {
                 <div className="space-y-4">
                   <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/80">Early Access Waitlist</p>
                   <h1 className="text-4xl font-semibold leading-tight text-foreground md:text-5xl">
-                    Be first when ChatGPT Shopping for Shopify launches
+                    Your Shopify Products in ChatGPT Shopping
                   </h1>
                   <p className="max-w-xl text-lg text-muted-foreground">
-                    AgentRanked auto-builds ACP feeds so your products are discoverable by AI shoppers when ChatGPT Shopping launches for Shopify stores.
+                    AgentRanked auto-builds ACP feeds so your Shopify products are found by ChatGPT shoppers. Get ready before everyone else.
                   </p>
                 </div>
 
