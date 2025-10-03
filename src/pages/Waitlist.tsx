@@ -1,9 +1,11 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Sparkles, UserPlus, Copy, Link2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useSearchParams } from "react-router-dom";
+import { Copy, ExternalLink, Mail, Sparkles } from "lucide-react";
+
+import { GlassCard } from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -13,9 +15,13 @@ import { toast } from "sonner";
 const WAITLIST_STORAGE_KEY = "agentranked_waitlist_ref";
 const REFERRAL_TARGET = 3;
 
-type WaitlistUser = Database["public"]["Tables"]["waitlist_users"]["Row"];
-
 const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+/** Stage of the waitlist funnel shown in the UI. */
+type WaitlistStage = "signup" | "referrals" | "success";
+
+/** Convenience type for the Supabase waitlist row. */
+type WaitlistUser = Database["public"]["Tables"]["waitlist_users"]["Row"];
 
 const Waitlist = () => {
   const [searchParams] = useSearchParams();
@@ -24,14 +30,17 @@ const Waitlist = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formMessage, setFormMessage] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<WaitlistUser | null>(null);
   const [initializing, setInitializing] = useState(true);
+  const [stage, setStage] = useState<WaitlistStage>("signup");
 
   const normalizedReferral = useMemo(() => {
     if (!referralParam) return null;
     return referralParam.trim().toUpperCase();
   }, [referralParam]);
 
+  /** Load a waitlist user by referral code and cache it locally. */
   const fetchUserByReferral = useCallback(async (code: string) => {
     const { data, error: fetchError } = await supabase
       .from("waitlist_users")
@@ -52,6 +61,7 @@ const Waitlist = () => {
     return data;
   }, []);
 
+  /** Bootstrap the page with any cached referral visitor state. */
   useEffect(() => {
     const storedCode = localStorage.getItem(WAITLIST_STORAGE_KEY);
 
@@ -62,6 +72,26 @@ const Waitlist = () => {
     }
   }, [fetchUserByReferral]);
 
+  /** Update the UI stage whenever waitlist progress changes. */
+  useEffect(() => {
+    if (initializing) return;
+
+    if (!currentUser) {
+      setStage("signup");
+    } else if ((currentUser.invite_count ?? 0) >= REFERRAL_TARGET) {
+      setStage("success");
+    } else {
+      setStage("referrals");
+    }
+  }, [currentUser, initializing]);
+
+  useEffect(() => {
+    if (stage === "signup") {
+      setFormMessage(null);
+    }
+  }, [stage]);
+
+  /** Generate a short, human-friendly referral code. */
   const generateUniqueReferralCode = useCallback(async (): Promise<string> => {
     let attempt = 0;
 
@@ -86,21 +116,20 @@ const Waitlist = () => {
     throw new Error("Unable to generate referral code. Please try again.");
   }, []);
 
+  /** Increment the inviter's counter when a referral signs up. */
   const incrementInviterCount = useCallback(async (code: string | null) => {
     if (!code) return;
 
     const { data: inviter, error: inviterError } = await supabase
       .from("waitlist_users")
-      .select("id, invite_count, referral_code")
+      .select("id, invite_count")
       .eq("referral_code", code)
       .maybeSingle();
 
-    if (inviterError) {
-      console.error("Failed to load inviter", inviterError);
+    if (inviterError || !inviter) {
+      if (inviterError) console.error("Failed to load inviter", inviterError);
       return;
     }
-
-    if (!inviter) return;
 
     const nextCount = (inviter.invite_count ?? 0) + 1;
 
@@ -123,8 +152,8 @@ const Waitlist = () => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailPattern.test(normalizedEmail)) {
       setError("Enter a valid email address.");
       return;
@@ -147,7 +176,8 @@ const Waitlist = () => {
       if (existing) {
         setCurrentUser(existing);
         localStorage.setItem(WAITLIST_STORAGE_KEY, existing.referral_code);
-        toast("You’re already on the AgentRanked waitlist.");
+        setFormMessage("You’re already on the AgentRanked waitlist. Keep sharing your link below.");
+        toast("You’re already on the waitlist.");
         return;
       }
 
@@ -173,7 +203,8 @@ const Waitlist = () => {
       if (inserted) {
         setCurrentUser(inserted);
         localStorage.setItem(WAITLIST_STORAGE_KEY, inserted.referral_code);
-        toast("Welcome! You’re on the AgentRanked Beta waitlist.");
+        setFormMessage("You’re in! Invite 3 Shopify friends to claim early beta access.");
+        toast("Welcome to the AgentRanked waitlist.");
       }
     } catch (signUpError) {
       console.error(signUpError);
@@ -189,15 +220,9 @@ const Waitlist = () => {
     return `https://getagentranked.com/waitlist?ref=${currentUser.referral_code}`;
   }, [currentUser]);
 
-  const progress = useMemo(() => {
-    const count = currentUser?.invite_count ?? 0;
-    return {
-      count,
-      capped: Math.min(count, REFERRAL_TARGET),
-      percent: (Math.min(count, REFERRAL_TARGET) / REFERRAL_TARGET) * 100,
-      unlocked: count >= REFERRAL_TARGET,
-    };
-  }, [currentUser]);
+  const totalInvites = currentUser?.invite_count ?? 0;
+  const pendingInvites = Math.max(REFERRAL_TARGET - totalInvites, 0);
+  const progressPercent = (Math.min(totalInvites, REFERRAL_TARGET) / REFERRAL_TARGET) * 100;
 
   const handleCopyLink = async () => {
     if (!referralLink) return;
@@ -222,142 +247,178 @@ const Waitlist = () => {
     window.open(`mailto:?subject=${subject}&body=${body}`, "_blank", "noopener,noreferrer");
   };
 
-  const steps = [
-    {
-      title: "Sign up with your email",
-      description: "Secure your spot in the beta by joining the waitlist.",
-      icon: Mail,
-    },
-    {
-      title: "Invite 3 Shopify friends",
-      description: "Share your unique link with fellow merchants.",
-      icon: UserPlus,
-    },
-    {
-      title: "Unlock Beta access",
-      description: "Get instant access when 3 invites join successfully.",
-      icon: Sparkles,
-    },
-  ];
-
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.15),_transparent_55%)]" />
-      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_bottom,_rgba(59,130,246,0.12),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.18),_transparent_55%)]" />
+      <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_bottom,_rgba(26,86,219,0.16),_transparent_55%)]" />
 
-      <main className="relative z-10 flex flex-col items-center px-4 pb-24 pt-32 sm:px-6 lg:px-8">
-        <motion.section
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-3xl text-center"
-        >
-          <div className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 p-10 shadow-2xl shadow-cyan-400/10 backdrop-blur-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/15 via-transparent to-white/5" />
-            <div className="relative z-10 space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-                  Join the AgentRanked Beta
-                </h1>
-                <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-                  Be among the first 25 Shopify merchants to unlock AI-powered visibility in ChatGPT Shopping.
-                </p>
+      <main className="relative z-10 px-4 pb-24 pt-32 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 p-10 shadow-2xl shadow-cyan-400/15 backdrop-blur-2xl md:p-16"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/15 via-transparent to-white/10" />
+            <div className="relative grid items-center gap-12 md:grid-cols-2">
+              <div className="space-y-8 text-left">
+                <div className="space-y-4">
+                  <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/80">AgentRanked Waitlist</p>
+                  <h1 className="text-4xl font-semibold leading-tight text-foreground md:text-5xl">
+                    Be first when ChatGPT Shopping for Shopify launches
+                  </h1>
+                  <p className="max-w-xl text-lg text-muted-foreground">
+                    AgentRanked auto-builds ACP feeds so your products are discoverable when assistants start recommending Shopify stores directly inside ChatGPT Shopping.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="justify-start rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/20"
+                  >
+                    <a href="https://openai.com/blog/chatgpt-shopify" target="_blank" rel="noreferrer">
+                      Shopify + OpenAI ACP announcement
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="justify-start rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/20"
+                  >
+                    <a href="https://developers.openai.com/commerce/specs/feed" target="_blank" rel="noreferrer">
+                      Shopify’s developer ACP docs
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+
+                {stage === "signup" && (
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row">
+                    <div className="flex-1">
+                      <Input
+                        type="email"
+                        value={email}
+                        disabled={loading}
+                        onChange={(event) => setEmail(event.target.value)}
+                        placeholder="name@store.com"
+                        className="h-14 rounded-full border-white/20 bg-white/10 px-6 text-base text-foreground backdrop-blur focus-visible:ring-2 focus-visible:ring-cyan-300/60"
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      size="lg"
+                      className="h-14 rounded-full bg-accent px-8 text-base font-semibold text-accent-foreground shadow-[0_0_40px_rgba(34,211,238,0.4)] transition hover:bg-accent/90"
+                    >
+                      {loading ? "Joining..." : "Join Waitlist"}
+                    </Button>
+                  </form>
+                )}
+
+                {stage !== "signup" && (
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-5 text-sm text-cyan-100 shadow-inner shadow-cyan-300/20">
+                    {stage === "success" ? (
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl">🎉</span>
+                        <p className="text-base font-semibold text-cyan-100">
+                          You’ve unlocked beta access. We’ll notify you the moment onboarding opens.
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-base font-medium text-cyan-100">
+                        Thanks for joining! Share your referral link below to unlock early beta access.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {error && stage === "signup" && (
+                  <p className="text-sm text-red-300">{error}</p>
+                )}
+
+                {formMessage && stage !== "signup" && (
+                  <p className="text-sm text-muted-foreground">{formMessage}</p>
+                )}
               </div>
 
-              <form
-                onSubmit={handleSubmit}
-                className={cn(
-                  "mx-auto flex w-full max-w-xl flex-col gap-4 sm:flex-row",
-                  currentUser && "pointer-events-none opacity-60",
-                )}
-              >
-                <Input
-                  type="email"
-                  value={email}
-                  disabled={loading || !!currentUser}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="name@store.com"
-                  className="h-14 rounded-full border-white/20 bg-white/10 px-6 text-base text-foreground backdrop-blur focus-visible:ring-2 focus-visible:ring-cyan-300/60"
-                />
-                <Button
-                  type="submit"
-                  disabled={loading || !!currentUser}
-                  size="lg"
-                  className="h-14 rounded-full bg-cyan-400/90 px-8 text-base font-semibold text-slate-900 shadow-[0_0_35px_rgba(34,211,238,0.35)] transition hover:bg-cyan-300"
-                >
-                  {loading ? "Joining..." : "Join Waitlist"}
-                </Button>
-              </form>
-
-              {error && (
-                <p className="text-sm text-red-300">{error}</p>
-              )}
-
-              {currentUser && (
-                <div className="rounded-2xl border border-white/10 bg-white/10 px-6 py-5 text-left shadow-inner shadow-cyan-300/10">
-                  <p className="text-sm font-medium text-cyan-100">
-                    Welcome aboard! Share your link below to unlock early access.
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    <span className="rounded-full bg-white/10 px-3 py-1 font-medium text-foreground">
-                      {currentUser.email}
-                    </span>
-                    <span className="text-white/70">•</span>
-                    <span>Your referral code: </span>
-                    <span className="font-semibold text-cyan-200">{currentUser.referral_code}</span>
+              <div className="relative">
+                <div className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-cyan-400/20">
+                  <img
+                    src="/waitlist-hero.png"
+                    alt="Preview of AgentRanked waitlist"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  <div className="absolute bottom-6 left-6 rounded-2xl border border-white/20 bg-white/15 px-5 py-3 text-sm font-medium text-foreground shadow-[0_0_25px_rgba(34,211,238,0.25)]">
+                    Your Products Here
                   </div>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        </motion.section>
+          </motion.div>
+        </section>
 
         {!initializing && currentUser && (
           <motion.section
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-16 w-full max-w-3xl"
+            className="mx-auto mt-16 max-w-5xl"
           >
-            <div className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 p-8 shadow-2xl shadow-cyan-400/10">
-              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/10 via-transparent to-white/10" />
-              <div className="relative z-10 space-y-6">
-                <div className="flex flex-col gap-2 text-left">
-                  <h2 className="text-2xl font-semibold text-foreground">Referral Tracker</h2>
+            <GlassCard className="relative overflow-hidden rounded-3xl border border-white/10 p-8 shadow-2xl shadow-cyan-400/15">
+              <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 via-transparent to-white/10" />
+              <div className="relative space-y-8">
+                <div className="space-y-3 text-left">
+                  <h2 className="text-2xl font-semibold text-foreground">Referral dashboard</h2>
                   <p className="max-w-xl text-sm text-muted-foreground">
-                    Invite 3 Shopify friends to unlock Beta access.
+                    Invite 3 Shopify friends to unlock early beta access (only 25 spots).
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/10 p-6">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      Progress
-                    </span>
-                    <span className="text-sm font-semibold text-cyan-200">
-                      {progress.capped}/{REFERRAL_TARGET} invites
-                    </span>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left">
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Total invited</p>
+                    <p className="mt-3 text-2xl font-semibold text-foreground">{totalInvites}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left">
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Pending invites</p>
+                    <p className="mt-3 text-2xl font-semibold text-foreground">{pendingInvites}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left">
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Goal</p>
+                    <p className="mt-3 text-2xl font-semibold text-foreground">{REFERRAL_TARGET}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <span className="font-medium text-muted-foreground">Progress</span>
+                    <span className="font-semibold text-cyan-200">{Math.min(totalInvites, REFERRAL_TARGET)}/{REFERRAL_TARGET}</span>
                   </div>
                   <Progress
-                    value={progress.percent}
-                    className="mt-3 h-3 rounded-full border border-white/10 bg-white/10 shadow-inner shadow-cyan-300/20"
+                    value={progressPercent}
+                    className="h-3 rounded-full border border-white/10 bg-white/10 shadow-inner shadow-cyan-300/20"
                   />
-                  {progress.unlocked ? (
-                    <p className="mt-4 text-base font-semibold text-cyan-100">
-                      🎉 You’ve unlocked Beta access!
-                    </p>
+                  {stage === "success" ? (
+                    <div className="flex items-center gap-3 rounded-2xl border border-cyan-300/40 bg-cyan-500/15 px-4 py-3 text-sm font-medium text-cyan-50 shadow-[0_0_30px_rgba(34,211,238,0.35)]">
+                      <Sparkles className="h-4 w-4" />
+                      You’ve unlocked beta access. We’ll notify you soon.
+                    </div>
                   ) : (
-                    <p className="mt-4 text-sm text-muted-foreground">
-                      {REFERRAL_TARGET - progress.count} more invite{REFERRAL_TARGET - progress.count === 1 ? "" : "s"} to go.
+                    <p className="text-sm text-muted-foreground">
+                      {pendingInvites} more invite{pendingInvites === 1 ? "" : "s"} to go.
                     </p>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-4 text-left sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Your link</span>
-                    <div className="mt-2 flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-foreground">
-                      <Link2 className="h-4 w-4 text-cyan-200" />
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="w-full max-w-xl">
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Your referral link</p>
+                    <div className="mt-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-foreground">
                       <span className="truncate">{referralLink}</span>
                     </div>
                   </div>
@@ -366,10 +427,10 @@ const Waitlist = () => {
                       type="button"
                       onClick={handleCopyLink}
                       variant="outline"
-                      className="rounded-full border-cyan-300/40 bg-cyan-400/20 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.25)] hover:bg-cyan-300/30"
+                      className="rounded-full border-cyan-300/40 bg-cyan-400/20 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300/30"
                     >
                       <Copy className="h-4 w-4" />
-                      Copy referral link
+                      Copy link
                     </Button>
                     <Button
                       type="button"
@@ -378,64 +439,14 @@ const Waitlist = () => {
                       className="rounded-full border border-white/10 bg-white/10 text-foreground hover:bg-white/20"
                     >
                       <Mail className="h-4 w-4" />
-                      Invite via Email
+                      Invite via email
                     </Button>
                   </div>
                 </div>
               </div>
-            </div>
+            </GlassCard>
           </motion.section>
         )}
-
-        <motion.section
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mt-20 w-full max-w-6xl"
-        >
-          <div className="grid gap-6 md:grid-cols-3">
-            {steps.map(({ icon: Icon, title, description }) => (
-              <div
-                key={title}
-                className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 p-8 shadow-xl shadow-cyan-400/5"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-cyan-400/10" />
-                <div className="relative z-10 space-y-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.25)]">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-                  <p className="text-sm text-muted-foreground">{description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="mt-20 w-full max-w-3xl text-center"
-        >
-          <div className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 p-8 shadow-2xl shadow-cyan-400/10">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 via-transparent to-white/5" />
-            <div className="relative z-10 space-y-4">
-              <p className="text-base text-muted-foreground">
-                Already invited? Check your status in your referral dashboard.
-              </p>
-              <Button
-                asChild
-                size="lg"
-                className="rounded-full bg-cyan-400/90 px-8 text-base font-semibold text-slate-900 shadow-[0_0_35px_rgba(34,211,238,0.35)] transition hover:bg-cyan-300"
-              >
-                <a href="/waitlist/dashboard">View My Dashboard</a>
-              </Button>
-            </div>
-          </div>
-        </motion.section>
       </main>
     </div>
   );
