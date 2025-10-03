@@ -267,6 +267,8 @@ const Waitlist = () => {
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                       <Input
                         type="email"
+                        name="email"
+                        autoComplete="email"
                         value={email}
                         disabled={loading}
                         onChange={(event) => setEmail(event.target.value)}
@@ -448,6 +450,16 @@ const Waitlist = () => {
             </GlassCard>
           </motion.section>
         )}
+
+        {/* Privacy Policy Link */}
+        <div className="mt-12 text-center">
+          <a 
+            href="/privacy-policy" 
+            className="text-sm text-muted-foreground hover:text-cyan-200 transition-colors"
+          >
+            Privacy Policy
+          </a>
+        </div>
       </main>
     </div>
   );
