@@ -1,9 +1,27 @@
 import { motion } from "framer-motion";
 import { Zap, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { APIClient } from "@/lib/api/client";
 
 const Welcome = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      // Check if user has profile, if not create one
+      APIClient.getProfile(user.id).catch(() => {
+        // Profile doesn't exist, create it
+        APIClient.createProfile({
+          id: user.id,
+          email: user.email!,
+          name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+        }).catch(console.error);
+      });
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">

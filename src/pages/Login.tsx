@@ -1,16 +1,27 @@
-import { useState, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { useState, FormEvent, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout } from "@/components/AuthLayout";
 import { LoadingButton } from "@/components/LoadingButton";
 import { OAuthButton } from "@/components/OAuthButton";
 import { Toast, ToastType } from "@/components/Toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/dashboard');
+      }
+    });
+  }, [navigate]);
 
   const validateEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,6 +31,24 @@ const Login = () => {
   const handleEmailBlur = () => {
     if (email && !validateEmail(email)) {
       setError("Please enter a valid email");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      setToast({
+        message: error.message || "Failed to sign in with Google",
+        type: "error",
+      });
     }
   };
 
@@ -36,34 +65,30 @@ const Login = () => {
       return;
     }
 
+    if (!password.trim()) {
+      setError("Password is required");
+      return;
+    }
+
     setIsLoading(true);
+    setError("");
 
     try {
-      // Send magic link
-      const response = await fetch("/api/auth/magic-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          type: "login",
-        }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Something went wrong");
+      if (error) throw error;
+
+      if (data.session) {
+        navigate('/dashboard');
       }
-
-      setIsLoading(false);
-      setEmailSent(true);
-      setToast({
-        message: `Check your email! We sent a magic link to ${email}. Link expires in 15 minutes.`,
-        type: "success",
-      });
     } catch (error: any) {
       setIsLoading(false);
+      setError(error.message || "Invalid email or password");
       setToast({
-        message: error.message || "Something went wrong. Please try again.",
+        message: error.message || "Failed to sign in. Please try again.",
         type: "error",
       });
     }
@@ -92,7 +117,7 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Google OAuth */}
-          <OAuthButton provider="google" text="Continue with Google" />
+          <OAuthButton provider="google" text="Continue with Google" onClick={handleGoogleLogin} />
 
           {/* OR Divider */}
           <div className="relative">
@@ -118,7 +143,6 @@ const Login = () => {
               }}
               onBlur={handleEmailBlur}
               onFocus={() => setError("")}
-              disabled={emailSent}
               className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
                 error
                   ? "border-red-500 focus:ring-red-500"
@@ -130,9 +154,32 @@ const Login = () => {
             {error && <p className="text-sm text-red-500 mt-1.5">{error}</p>}
           </div>
 
+          {/* Password Field */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (error) setError("");
+              }}
+              onFocus={() => setError("")}
+              className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground ${
+                error
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-white/20 focus:ring-accent focus:border-accent"
+              }`}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+            />
+          </div>
+
           {/* Submit Button */}
-          <LoadingButton type="submit" isLoading={isLoading} disabled={emailSent}>
-            Sign in with email
+          <LoadingButton type="submit" isLoading={isLoading}>
+            Sign in
           </LoadingButton>
         </form>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { ProductCard } from "@/components/dashboard/ProductCard";
@@ -7,6 +7,8 @@ import { BulkActionBar } from "@/components/dashboard/BulkActionBar";
 import { BulkOptimizationModal } from "@/components/dashboard/BulkOptimizationModal";
 import { Toast, ToastType } from "@/components/Toast";
 import { Product } from "@/types/product";
+import { useAuth } from "@/contexts/AuthContext";
+import { APIClient } from "@/lib/api/client";
 
 // Mock Data
 const mockProducts: Product[] = [
@@ -81,7 +83,9 @@ const mockProducts: Product[] = [
 ];
 
 const Products = () => {
-  const [products] = useState<Product[]>(mockProducts);
+  const { user } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,6 +93,35 @@ const Products = () => {
   const [showOptimizationModal, setShowOptimizationModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+
+    APIClient.getProducts(user.id)
+      .then((data) => {
+        // Transform database products to match Product interface
+        const transformedProducts: Product[] = data.map(p => ({
+          id: p.id,
+          currentTitle: p.title,
+          optimizedTitle: p.title, // TODO: Get from optimizations
+          currentDescription: p.description || "",
+          optimizedDescription: "", // TODO: Get from optimizations
+          currentTags: p.tags || [],
+          suggestedTags: [], // TODO: Get from optimizations
+          image: p.featured_image || "",
+          price: p.price?.toString() || "0",
+          currency: p.currency || "USD",
+          quantity: p.inventory_quantity || 0,
+          acpReadinessBefore: Math.max(0, (p.acp_score || 0) - 20),
+          acpReadinessAfter: p.acp_score || 0,
+          status: p.acp_compliant ? "ready" : "needs_fix",
+          validationErrors: p.missing_fields || [],
+        }));
+        setProducts(transformedProducts);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [user]);
 
   const handleToggleSelect = (id: string) => {
     setSelectedProducts((prev) => {
@@ -175,6 +208,16 @@ const Products = () => {
     descriptionsEnhanced: selectedProductsData.filter((p) => p.optimizedDescription).length,
     tagsAdded: selectedProductsData.reduce((sum, p) => sum + p.suggestedTags.length, 0),
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

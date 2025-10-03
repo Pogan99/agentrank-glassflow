@@ -1,21 +1,31 @@
-import { useState, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { useState, FormEvent, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthLayout } from "@/components/AuthLayout";
 import { LoadingButton } from "@/components/LoadingButton";
 import { OAuthButton } from "@/components/OAuthButton";
 import { Toast, ToastType } from "@/components/Toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/dashboard');
+      }
+    });
+  }, [navigate]);
 
   const validateEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,8 +47,32 @@ const Signup = () => {
       newErrors.email = "Please enter a valid email";
     }
 
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleGoogleSignup = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/onboarding/welcome`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      setToast({
+        message: error.message || "Failed to sign up with Google",
+        type: "error",
+      });
+    }
   };
 
   const handleEmailBlur = () => {
@@ -55,28 +89,31 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      // Send magic link
-      const response = await fetch("/api/auth/magic-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          name: formData.name,
-          type: "signup",
-        }),
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+          },
+          emailRedirectTo: `${window.location.origin}/onboarding/welcome`,
+        },
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Something went wrong");
-      }
+      if (error) throw error;
 
       setIsLoading(false);
-      setEmailSent(true);
-      setToast({
-        message: `Check your email! We sent a magic link to ${formData.email}. Link expires in 15 minutes.`,
-        type: "success",
-      });
+      
+      if (data.session) {
+        // User is automatically logged in
+        navigate('/onboarding/welcome');
+      } else {
+        // Email confirmation required
+        setToast({
+          message: `Check your email! We sent a confirmation link to ${formData.email}.`,
+          type: "success",
+        });
+      }
     } catch (error: any) {
       setIsLoading(false);
       setToast({
@@ -121,7 +158,7 @@ const Signup = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Google OAuth */}
-          <OAuthButton provider="google" text="Sign up with Google" />
+          <OAuthButton provider="google" text="Sign up with Google" onClick={handleGoogleSignup} />
 
           {/* OR Divider */}
           <div className="relative">
@@ -135,7 +172,7 @@ const Signup = () => {
 
           {/* Progressive Disclosure */}
           {!isExpanded ? (
-            <LoadingButton type="button" onClick={handleExpandForm} disabled={emailSent}>
+            <LoadingButton type="button" onClick={handleExpandForm}>
               Sign up with email
             </LoadingButton>
           ) : (
@@ -156,7 +193,6 @@ const Signup = () => {
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     onFocus={() => errors.name && setErrors({ ...errors, name: "" })}
-                    disabled={emailSent}
                     className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.name
                         ? "border-red-500 focus:ring-red-500"
@@ -179,7 +215,6 @@ const Signup = () => {
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     onBlur={handleEmailBlur}
                     onFocus={() => errors.email && setErrors({ ...errors, email: "" })}
-                    disabled={emailSent}
                     className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.email
                         ? "border-red-500 focus:ring-red-500"
@@ -190,8 +225,29 @@ const Signup = () => {
                   {errors.email && <p className="text-sm text-red-500 mt-1.5">{errors.email}</p>}
                 </div>
 
+                {/* Password Field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onFocus={() => errors.password && setErrors({ ...errors, password: "" })}
+                    className={`w-full px-4 py-3 bg-background/50 border rounded-lg focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground ${
+                      errors.password
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-white/20 focus:ring-accent focus:border-accent"
+                    }`}
+                    placeholder="Create a password (min. 6 characters)"
+                    minLength={6}
+                  />
+                  {errors.password && <p className="text-sm text-red-500 mt-1.5">{errors.password}</p>}
+                </div>
+
                 {/* Submit Button */}
-                <LoadingButton type="submit" isLoading={isLoading} disabled={emailSent}>
+                <LoadingButton type="submit" isLoading={isLoading}>
                   Sign up
                 </LoadingButton>
               </motion.div>

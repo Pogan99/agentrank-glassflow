@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GlassNav } from "@/components/GlassNav";
 import { Footer } from "@/components/Footer";
+import { AuthProvider, ProtectedRoute } from "@/contexts/AuthContext";
 import Home from "./pages/Home";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
@@ -30,10 +31,11 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <Routes>
           {/* Public routes with GlassNav + Footer */}
           <Route path="/" element={<><GlassNav /><Home /><Footer /></>} />
@@ -47,26 +49,27 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/verify" element={<Verify />} />
 
-          {/* Onboarding routes (no nav/footer) */}
-          <Route path="/onboarding/welcome" element={<Welcome />} />
-          <Route path="/onboarding/connect-store" element={<ConnectStore />} />
-          <Route path="/onboarding/shopify/callback" element={<ShopifyCallback />} />
-          <Route path="/onboarding/pricing" element={<OnboardingPricing />} />
-          <Route path="/onboarding/setup" element={<Setup />} />
+          {/* Onboarding routes (protected) */}
+          <Route path="/onboarding/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
+          <Route path="/onboarding/connect-store" element={<ProtectedRoute><ConnectStore /></ProtectedRoute>} />
+          <Route path="/onboarding/shopify/callback" element={<ProtectedRoute><ShopifyCallback /></ProtectedRoute>} />
+          <Route path="/onboarding/pricing" element={<ProtectedRoute><OnboardingPricing /></ProtectedRoute>} />
+          <Route path="/onboarding/setup" element={<ProtectedRoute><Setup /></ProtectedRoute>} />
 
-          {/* Dashboard routes (own layout) */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/products" element={<DashboardProducts />} />
-          <Route path="/dashboard/optimize" element={<Optimize />} />
-          <Route path="/dashboard/alerts" element={<Alerts />} />
-          <Route path="/dashboard/analytics" element={<Analytics />} />
-          <Route path="/dashboard/settings" element={<Settings />} />
+          {/* Dashboard routes (protected) */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/products" element={<ProtectedRoute><DashboardProducts /></ProtectedRoute>} />
+          <Route path="/dashboard/optimize" element={<ProtectedRoute><Optimize /></ProtectedRoute>} />
+          <Route path="/dashboard/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+          <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+          <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
           {/* 404 */}
           <Route path="*" element={<><GlassNav /><NotFound /><Footer /></>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

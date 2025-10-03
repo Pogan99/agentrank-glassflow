@@ -1,14 +1,37 @@
-import { Link } from "react-router-dom";
-import { Store, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Store, User, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { APIClient } from "@/lib/api/client";
 
 export const TopNav = () => {
-  const credits = { used: 18, limit: 20, resetsIn: "6h 23m" };
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      APIClient.getProfile(user.id).then(setProfile).catch(console.error);
+    }
+  }, [user]);
+
+  const credits = {
+    used: profile?.optimization_credits_used || 0,
+    limit: profile?.optimization_credits_limit || 30,
+  };
   const creditsRemaining = credits.limit - credits.used;
 
   const getCreditsColor = () => {
     if (creditsRemaining > 10) return "text-green-500";
     if (creditsRemaining >= 3) return "text-yellow-500";
     return "text-red-500";
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
   };
 
   return (
@@ -25,10 +48,14 @@ export const TopNav = () => {
           {/* Right Side */}
           <div className="flex items-center gap-6">
             {/* Connected Store */}
-            <div className="hidden sm:flex items-center gap-2 glass-panel px-4 py-2 rounded-full">
-              <Store className="h-4 w-4 text-accent" />
-              <span className="text-sm text-foreground font-medium">My Etsy Shop</span>
-            </div>
+            {profile?.shopify_shop_domain && (
+              <div className="hidden sm:flex items-center gap-2 glass-panel px-4 py-2 rounded-full">
+                <Store className="h-4 w-4 text-accent" />
+                <span className="text-sm text-foreground font-medium">
+                  {profile.shopify_shop_domain.replace('.myshopify.com', '')}
+                </span>
+              </div>
+            )}
 
             {/* Credits Display */}
             <div className="relative group">
@@ -46,17 +73,17 @@ export const TopNav = () => {
               <div className="absolute right-0 top-full mt-2 hidden group-hover:block">
                 <div className="glass-panel p-3 rounded-xl shadow-xl min-w-[200px]">
                   <p className="text-xs text-muted-foreground">
-                    Daily optimization limit
+                    Monthly optimization limit
                   </p>
                   <p className="text-sm text-foreground font-medium mt-1">
-                    Resets in {credits.resetsIn}
+                    {profile?.plan === 'free' ? 'Free plan' : 'Pro plan'}
                   </p>
-                  {creditsRemaining < 3 && (
+                  {creditsRemaining < 3 && profile?.plan === 'free' && (
                     <Link
-                      to="/pricing"
+                      to="/onboarding/pricing"
                       className="text-xs text-accent hover:underline mt-2 block"
                     >
-                      Upgrade for unlimited →
+                      Upgrade for more →
                     </Link>
                   )}
                 </div>
@@ -64,9 +91,41 @@ export const TopNav = () => {
             </div>
 
             {/* User Menu */}
-            <button className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center hover:bg-accent/30 transition-colors">
-              <User className="h-5 w-5 text-accent" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center hover:bg-accent/30 transition-colors"
+              >
+                <User className="h-5 w-5 text-accent" />
+              </button>
+
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-48 glass-panel rounded-xl shadow-xl overflow-hidden">
+                  <div className="p-3 border-b border-white/10">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {user?.email}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {profile?.plan || 'Free'} Plan
+                    </p>
+                  </div>
+                  <Link
+                    to="/dashboard/settings"
+                    className="block px-3 py-2 text-sm text-foreground hover:bg-white/5 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-3 py-2 text-sm text-red-500 hover:bg-white/5 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

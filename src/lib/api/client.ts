@@ -295,18 +295,18 @@ export class APIClient {
     return data;
   }
 
-  static async analyzeProduct(productId: string) {
+  static async analyzeProduct(productId: string, userId: string) {
     const { data, error } = await supabase.functions.invoke('analyze-product', {
-      body: { productId },
+      body: { productId, userId },
     });
     
     if (error) throw error;
     return data;
   }
 
-  static async applyOptimizationToShopify(optimizationId: string, fields: string[]) {
+  static async applyOptimizationToShopify(optimizationId: string, fields: string[], userId: string) {
     const { data, error } = await supabase.functions.invoke('apply-optimization', {
-      body: { optimizationId, fields },
+      body: { optimizationId, selectedFields: fields, userId },
     });
     
     if (error) throw error;

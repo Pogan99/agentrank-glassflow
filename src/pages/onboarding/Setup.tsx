@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Check, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import confetti from "canvas-confetti";
+import { useAuth } from "@/contexts/AuthContext";
+import { APIClient } from "@/lib/api/client";
 
 interface SetupStep {
   id: number;
@@ -12,6 +14,7 @@ interface SetupStep {
 
 const Setup = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [setupComplete, setSetupComplete] = useState(false);
   const [productCount, setProductCount] = useState(0);
@@ -55,23 +58,33 @@ const Setup = () => {
     await delay(500);
     setSteps((prev) => prev.map((s) => (s.id === 1 ? { ...s, status: "completed" } : s)));
 
-    // Step 2: Import products (2-5s with count animation)
+    // Step 2: Import products (call actual API)
     setSteps((prev) => prev.map((s) => (s.id === 2 ? { ...s, status: "loading" } : s)));
 
-    // Animate product count from 0 to random number (50-200)
-    const targetCount = Math.floor(Math.random() * 150) + 50;
-    for (let i = 0; i <= targetCount; i += 5) {
-      setProductCount(Math.min(i, targetCount));
-      await delay(50);
+    try {
+      if (user) {
+        const result = await APIClient.importShopifyProducts(user.id);
+        setProductCount(result?.imported || 0);
+      }
+    } catch (error) {
+      console.error('Failed to import products:', error);
     }
-    setProductCount(targetCount);
 
     await delay(1000);
     setSteps((prev) => prev.map((s) => (s.id === 2 ? { ...s, status: "completed" } : s)));
 
     // Step 3: Generate ACP feed
     setSteps((prev) => prev.map((s) => (s.id === 3 ? { ...s, status: "loading" } : s)));
-    await delay(2000);
+    
+    try {
+      if (user) {
+        await APIClient.generateACPFeed(user.id);
+      }
+    } catch (error) {
+      console.error('Failed to generate ACP feed:', error);
+    }
+    
+    await delay(1000);
     setSteps((prev) => prev.map((s) => (s.id === 3 ? { ...s, status: "completed" } : s)));
 
     // Step 4: Analyze opportunities
@@ -86,7 +99,7 @@ const Setup = () => {
 
     // Save completion to localStorage
     localStorage.setItem("onboardingComplete", "true");
-    localStorage.setItem("productCount", targetCount.toString());
+    localStorage.setItem("productCount", productCount.toString());
   };
 
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

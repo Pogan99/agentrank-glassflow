@@ -1,11 +1,52 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { TrendingUp, ShoppingBag, Zap, AlertCircle, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { APIClient } from "@/lib/api/client";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    Promise.all([
+      APIClient.getProfile(user.id),
+      APIClient.getProducts(user.id, { limit: 10 }),
+      APIClient.getAlerts(user.id, { limit: 5 }),
+    ])
+      .then(([profileData, productsData, alertsData]) => {
+        setProfile(profileData);
+        setProducts(productsData);
+        setAlerts(alertsData);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  // Redirect if no shopify connected
+  useEffect(() => {
+    if (!loading && profile && !profile.shopify_shop_domain) {
+      navigate('/onboarding/connect-store');
+    }
+  }, [profile, loading, navigate]);
+
+  const activeProducts = products.filter(p => p.status === 'active').length;
+  const optimizedProducts = products.filter(p => p.acp_compliant).length;
+  const avgScore = products.length > 0
+    ? Math.round(products.reduce((sum, p) => sum + (p.acp_score || 0), 0) / products.length)
+    : 0;
+
   const metrics = [
     {
       label: "ACP Readiness",
-      value: "78",
+      value: avgScore.toString(),
       unit: "/100",
       change: "+12%",
       trend: "up",
@@ -14,58 +55,51 @@ const Dashboard = () => {
     },
     {
       label: "Products Optimized",
-      value: "42",
-      unit: "/150",
-      change: "+8",
+      value: optimizedProducts.toString(),
+      unit: `/${activeProducts}`,
+      change: `+${optimizedProducts}`,
       trend: "up",
       icon: Zap,
-      description: "This month",
+      description: "ACP compliant",
     },
     {
       label: "Active Listings",
-      value: "150",
+      value: activeProducts.toString(),
       unit: "",
-      change: "+5",
+      change: "+0",
       trend: "up",
       icon: ShoppingBag,
-      description: "Connected from Etsy",
+      description: "Connected from Shopify",
     },
     {
       label: "Issues Detected",
-      value: "12",
+      value: alerts.filter(a => !a.dismissed).length.toString(),
       unit: "",
-      change: "-3",
+      change: `-${alerts.filter(a => a.read).length}`,
       trend: "down",
       icon: AlertCircle,
       description: "Requiring attention",
     },
   ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      action: "Optimized",
-      product: "Hand-Made Beige Vase",
-      acpBefore: 42,
-      acpAfter: 87,
-      timestamp: "2 hours ago",
-    },
-    {
-      id: 2,
-      action: "Optimized",
-      product: "Blue Ceramic Coffee Mug",
-      acpBefore: 35,
-      acpAfter: 82,
-      timestamp: "5 hours ago",
-    },
-    {
-      id: 3,
-      action: "Alert",
-      product: "Wooden Salad Bowl",
-      issue: "Missing required field: availability",
-      timestamp: "1 day ago",
-    },
-  ];
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const recentActivity = products.slice(0, 3).map((p, idx) => ({
+    id: idx,
+    action: p.acp_compliant ? "Optimized" : "Needs Review",
+    product: p.title,
+    acpBefore: Math.max(0, (p.acp_score || 0) - 30),
+    acpAfter: p.acp_score,
+    timestamp: new Date(p.updated_at).toLocaleDateString(),
+  }));
 
   const quickActions = [
     {
@@ -181,13 +215,9 @@ const Dashboard = () => {
                         {activity.product || activity.product}
                       </span>
                     </div>
-                    {activity.acpBefore && activity.acpAfter ? (
-                      <p className="text-sm text-muted-foreground">
-                        ACP Score: {activity.acpBefore} → {activity.acpAfter}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{activity.issue}</p>
-                    )}
+                    <p className="text-sm text-muted-foreground">
+                      ACP Score: {activity.acpBefore} → {activity.acpAfter}
+                    </p>
                   </div>
                   <span className="text-xs text-muted-foreground">{activity.timestamp}</span>
                 </div>
