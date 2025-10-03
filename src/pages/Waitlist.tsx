@@ -326,9 +326,6 @@ const Waitlist = () => {
                     className="h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 rounded-2xl border border-white/20 bg-white/15 px-5 py-3 text-sm font-medium text-foreground shadow-[0_0_25px_rgba(34,211,238,0.25)] backdrop-blur-sm">
-                    Your Products Here
-                  </div>
                 </div>
               </div>
             </div>
