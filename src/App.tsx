@@ -43,7 +43,7 @@ const App = () => (
           {/* Active: Waitlist only */}
           <Route path="/" element={<><GlassNav /><Waitlist /><Footer /></>} />
           <Route path="/waitlist" element={<><GlassNav /><Waitlist /><Footer /></>} />
-          <Route path="/privacy-policy" element={<><GlassNav /><PrivacyPolicy /><Footer /></>} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Temporarily deactivated routes */}
           {/* <Route path="/features" element={<><GlassNav /><Features /><Footer /></>} />
