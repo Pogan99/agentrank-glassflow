@@ -42,23 +42,23 @@ const Waitlist = () => {
 
   /** Load a waitlist user by referral code and cache it locally. */
   const fetchUserByReferral = useCallback(async (code: string) => {
-    const { data, error: fetchError } = await supabase
-      .from("waitlist_users")
-      .select("*")
-      .eq("referral_code", code)
-      .maybeSingle();
+    // Use secure function to validate referral code without exposing all data
+    const { data: isValid, error: validateError } = await supabase
+      .rpc("validate_referral_code", { code });
 
-    if (fetchError) {
-      console.error("Failed to load waitlist user", fetchError);
+    if (validateError) {
+      console.error("Failed to validate referral code", validateError);
       return null;
     }
 
-    if (data) {
-      setCurrentUser(data);
-      localStorage.setItem(WAITLIST_STORAGE_KEY, data.referral_code);
+    if (isValid) {
+      // Store code for later use when user signs up
+      localStorage.setItem(WAITLIST_STORAGE_KEY, code);
+      // We can't fetch full user data anymore for security, so just track the code
+      return { referral_code: code } as WaitlistUser;
     }
 
-    return data;
+    return null;
   }, []);
 
   /** Bootstrap the page with any cached referral visitor state. */
@@ -76,7 +76,7 @@ const Waitlist = () => {
   useEffect(() => {
     if (initializing) return;
 
-    if (!currentUser) {
+    if (!currentUser || !currentUser.referral_code) {
       setStage("signup");
     } else if ((currentUser.invite_count ?? 0) >= REFERRAL_TARGET) {
       setStage("success");
@@ -94,13 +94,17 @@ const Waitlist = () => {
         .map(() => alphabet[Math.floor(Math.random() * alphabet.length)])
         .join("");
 
-      const { data } = await supabase
-        .from("waitlist_users")
-        .select("id")
-        .eq("referral_code", code)
-        .maybeSingle();
+      // Use secure function to validate referral code
+      const { data: exists, error } = await supabase
+        .rpc("validate_referral_code", { code });
 
-      if (!data) {
+      if (error) {
+        console.error("Error checking referral code:", error);
+        attempt += 1;
+        continue;
+      }
+
+      if (!exists) {
         return code;
       }
 
@@ -114,26 +118,12 @@ const Waitlist = () => {
   const incrementInviterCount = useCallback(async (code: string | null) => {
     if (!code) return;
 
-    const { data: inviter, error: inviterError } = await supabase
-      .from("waitlist_users")
-      .select("id, invite_count")
-      .eq("referral_code", code)
-      .maybeSingle();
+    // Use secure function to increment referral count
+    const { error } = await supabase
+      .rpc("increment_referral_count", { code });
 
-    if (inviterError || !inviter) {
-      if (inviterError) console.error("Failed to load inviter", inviterError);
-      return;
-    }
-
-    const nextCount = (inviter.invite_count ?? 0) + 1;
-
-    const { error: updateError } = await supabase
-      .from("waitlist_users")
-      .update({ invite_count: nextCount })
-      .eq("id", inviter.id);
-
-    if (updateError) {
-      console.error("Failed to increment inviter count", updateError);
+    if (error) {
+      console.error("Failed to increment inviter count", error);
     }
   }, []);
 
@@ -157,19 +147,25 @@ const Waitlist = () => {
     setError(null);
 
     try {
-      const { data: existing, error: lookupError } = await supabase
-        .from("waitlist_users")
-        .select("*")
-        .eq("email", normalizedEmail)
-        .maybeSingle();
+      // Use secure function to check if email exists
+      const { data: emailCheckRaw, error: lookupError } = await supabase
+        .rpc("check_waitlist_email_exists", { email_address: normalizedEmail });
 
       if (lookupError) {
         throw lookupError;
       }
 
-      if (existing) {
-        setCurrentUser(existing);
-        localStorage.setItem(WAITLIST_STORAGE_KEY, existing.referral_code);
+      // Type assertion for the JSONB response
+      const emailCheck = emailCheckRaw as { exists: boolean; id?: string; referral_code?: string; invite_count?: number };
+
+      if (emailCheck && emailCheck.exists && emailCheck.referral_code) {
+        setCurrentUser({
+          referral_code: emailCheck.referral_code,
+          invite_count: emailCheck.invite_count ?? 0,
+          id: emailCheck.id as string,
+          email: normalizedEmail,
+        } as WaitlistUser);
+        localStorage.setItem(WAITLIST_STORAGE_KEY, emailCheck.referral_code);
         toast("You're already on the waitlist.");
         return;
       }
