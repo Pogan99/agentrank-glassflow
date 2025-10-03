@@ -4,8 +4,6 @@ import { useSearchParams } from "react-router-dom";
 import { Copy, ExternalLink, Mail, Sparkles, CheckCircle2 } from "lucide-react";
 
 import { GlassCard } from "@/components/GlassCard";
-import { GlassNav } from "@/components/GlassNav";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -42,23 +40,23 @@ const Waitlist = () => {
 
   /** Load a waitlist user by referral code and cache it locally. */
   const fetchUserByReferral = useCallback(async (code: string) => {
-    const { data, error: fetchError } = await supabase
-      .from("waitlist_users")
-      .select("*")
-      .eq("referral_code", code)
-      .maybeSingle();
+    // Use secure function to validate referral code without exposing all data
+    const { data: isValid, error: validateError } = await supabase
+      .rpc("validate_referral_code", { code });
 
-    if (fetchError) {
-      console.error("Failed to load waitlist user", fetchError);
+    if (validateError) {
+      console.error("Failed to validate referral code", validateError);
       return null;
     }
 
-    if (data) {
-      setCurrentUser(data);
-      localStorage.setItem(WAITLIST_STORAGE_KEY, data.referral_code);
+    if (isValid) {
+      // Store code for later use when user signs up
+      localStorage.setItem(WAITLIST_STORAGE_KEY, code);
+      // We can't fetch full user data anymore for security, so just track the code
+      return { referral_code: code } as WaitlistUser;
     }
 
-    return data;
+    return null;
   }, []);
 
   /** Bootstrap the page with any cached referral visitor state. */
@@ -76,7 +74,7 @@ const Waitlist = () => {
   useEffect(() => {
     if (initializing) return;
 
-    if (!currentUser) {
+    if (!currentUser || !currentUser.referral_code) {
       setStage("signup");
     } else if ((currentUser.invite_count ?? 0) >= REFERRAL_TARGET) {
       setStage("success");
@@ -94,13 +92,17 @@ const Waitlist = () => {
         .map(() => alphabet[Math.floor(Math.random() * alphabet.length)])
         .join("");
 
-      const { data } = await supabase
-        .from("waitlist_users")
-        .select("id")
-        .eq("referral_code", code)
-        .maybeSingle();
+      // Use secure function to validate referral code
+      const { data: exists, error } = await supabase
+        .rpc("validate_referral_code", { code });
 
-      if (!data) {
+      if (error) {
+        console.error("Error checking referral code:", error);
+        attempt += 1;
+        continue;
+      }
+
+      if (!exists) {
         return code;
       }
 
@@ -114,26 +116,12 @@ const Waitlist = () => {
   const incrementInviterCount = useCallback(async (code: string | null) => {
     if (!code) return;
 
-    const { data: inviter, error: inviterError } = await supabase
-      .from("waitlist_users")
-      .select("id, invite_count")
-      .eq("referral_code", code)
-      .maybeSingle();
+    // Use secure function to increment referral count
+    const { error } = await supabase
+      .rpc("increment_referral_count", { code });
 
-    if (inviterError || !inviter) {
-      if (inviterError) console.error("Failed to load inviter", inviterError);
-      return;
-    }
-
-    const nextCount = (inviter.invite_count ?? 0) + 1;
-
-    const { error: updateError } = await supabase
-      .from("waitlist_users")
-      .update({ invite_count: nextCount })
-      .eq("id", inviter.id);
-
-    if (updateError) {
-      console.error("Failed to increment inviter count", updateError);
+    if (error) {
+      console.error("Failed to increment inviter count", error);
     }
   }, []);
 
@@ -157,19 +145,25 @@ const Waitlist = () => {
     setError(null);
 
     try {
-      const { data: existing, error: lookupError } = await supabase
-        .from("waitlist_users")
-        .select("*")
-        .eq("email", normalizedEmail)
-        .maybeSingle();
+      // Use secure function to check if email exists
+      const { data: emailCheckRaw, error: lookupError } = await supabase
+        .rpc("check_waitlist_email_exists", { email_address: normalizedEmail });
 
       if (lookupError) {
         throw lookupError;
       }
 
-      if (existing) {
-        setCurrentUser(existing);
-        localStorage.setItem(WAITLIST_STORAGE_KEY, existing.referral_code);
+      // Type assertion for the JSONB response
+      const emailCheck = emailCheckRaw as { exists: boolean; id?: string; referral_code?: string; invite_count?: number };
+
+      if (emailCheck && emailCheck.exists && emailCheck.referral_code) {
+        setCurrentUser({
+          referral_code: emailCheck.referral_code,
+          invite_count: emailCheck.invite_count ?? 0,
+          id: emailCheck.id as string,
+          email: normalizedEmail,
+        } as WaitlistUser);
+        localStorage.setItem(WAITLIST_STORAGE_KEY, emailCheck.referral_code);
         toast("You're already on the waitlist.");
         return;
       }
@@ -242,8 +236,6 @@ const Waitlist = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <GlassNav />
-      
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.18),_transparent_55%)]" />
       <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_bottom,_rgba(26,86,219,0.16),_transparent_55%)]" />
 
@@ -263,10 +255,10 @@ const Waitlist = () => {
                 <div className="space-y-4">
                   <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/80">Early Access Waitlist</p>
                   <h1 className="text-4xl font-semibold leading-tight text-foreground md:text-5xl">
-                    Be first when ChatGPT Shopping for Shopify launches
+                    Your Shopify Products in ChatGPT Shopping
                   </h1>
                   <p className="max-w-xl text-lg text-muted-foreground">
-                    AgentRanked auto-builds ACP feeds so your products are discoverable by AI shoppers when ChatGPT Shopping launches for Shopify stores.
+                    AgentRanked auto-builds ACP feeds so your Shopify products are found by ChatGPT shoppers. Get ready before everyone else.
                   </p>
                 </div>
 
@@ -275,6 +267,8 @@ const Waitlist = () => {
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                       <Input
                         type="email"
+                        name="email"
+                        autoComplete="email"
                         value={email}
                         disabled={loading}
                         onChange={(event) => setEmail(event.target.value)}
@@ -351,7 +345,7 @@ const Waitlist = () => {
                   OpenAI recently announced official support for Shopify stores, meaning ChatGPT will soon browse, recommend, and link to products from ACP-compliant Shopify merchants. <strong className="text-foreground">If your store isn't ACP-ready when this launches, you'll be invisible to AI shoppers.</strong>
                 </p>
                 <p className="text-lg leading-relaxed">
-                  AgentRanked automates the entire ACP feed generation and optimization process in just one click, so you can focus on running your business while we make sure your products are discoverable by ChatGPT Shopping, Claude Commerce, and other AI shopping agents.
+                  AgentRanked automates the entire ACP feed generation and optimization process so you can focus on running your business while we make sure your products are discoverable by ChatGPT Shopping, Claude Commerce, and other AI shopping agents.
                 </p>
               </div>
               <div className="flex flex-col gap-3 pt-4 sm:flex-row">
@@ -456,9 +450,17 @@ const Waitlist = () => {
             </GlassCard>
           </motion.section>
         )}
-      </main>
 
-      <Footer />
+        {/* Privacy Policy Link */}
+        <div className="mt-12 text-center">
+          <a 
+            href="/privacy-policy" 
+            className="text-sm text-muted-foreground hover:text-cyan-200 transition-colors"
+          >
+            Privacy Policy
+          </a>
+        </div>
+      </main>
     </div>
   );
 };
