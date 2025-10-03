@@ -277,7 +277,7 @@ const Waitlist = () => {
                         value={email}
                         disabled={loading}
                         onChange={(event) => setEmail(event.target.value)}
-                        placeholder="your@shopify-store.com"
+                        placeholder="youremail@company.com"
                         className="h-14 rounded-full border-white/20 bg-white/10 px-6 text-base text-foreground backdrop-blur focus-visible:ring-2 focus-visible:ring-cyan-300/60"
                       />
                       <Button
