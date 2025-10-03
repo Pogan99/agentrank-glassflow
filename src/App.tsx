@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
+import Waitlist from "./pages/Waitlist";
 import Dashboard from "./pages/dashboard/Dashboard";
 import DashboardProducts from "./pages/dashboard/Products";
 import Optimize from "./pages/dashboard/Optimize";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/features" element={<><GlassNav /><Features /><Footer /></>} />
           <Route path="/pricing" element={<><GlassNav /><Pricing /><Footer /></>} />
           <Route path="/resources" element={<><GlassNav /><Resources /><Footer /></>} />
+          <Route path="/waitlist" element={<><GlassNav /><Waitlist /><Footer /></>} />
 
           {/* Auth routes (no nav/footer) */}
           <Route path="/login" element={<Login />} />

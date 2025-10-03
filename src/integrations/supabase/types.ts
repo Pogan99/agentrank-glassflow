@@ -432,6 +432,33 @@ export type Database = {
           },
         ]
       }
+      waitlist_users: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          invite_count: number | null
+          invited_by: string | null
+          referral_code: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          invite_count?: number | null
+          invited_by?: string | null
+          referral_code: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          invite_count?: number | null
+          invited_by?: string | null
+          referral_code?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
