@@ -12,12 +12,9 @@ export const Footer = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+            <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-accent transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-accent transition-colors">
-              Terms & Conditions
-            </a>
+            </Link>
           </div>
         </div>
 

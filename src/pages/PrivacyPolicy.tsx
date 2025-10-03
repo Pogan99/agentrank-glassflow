@@ -79,7 +79,7 @@ const PrivacyPolicy = () => {
                     <li><strong className="text-foreground">Opt-Out:</strong> You can unsubscribe from our communications at any time by clicking the unsubscribe link in our emails.</li>
                   </ul>
                   <p className="mt-3">
-                    To exercise any of these rights, please contact us at <a href="mailto:privacy@agentranked.com" className="text-accent hover:underline">privacy@agentranked.com</a>.
+                    To exercise any of these rights, please contact us at <a href="mailto:hello@eagleranked.com" className="text-accent hover:underline">hello@eagleranked.com</a>.
                   </p>
                 </section>
 
@@ -124,8 +124,9 @@ const PrivacyPolicy = () => {
                     If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:
                   </p>
                   <div className="rounded-lg border border-white/10 bg-white/5 p-4 mt-3">
-                    <p><strong className="text-foreground">Email:</strong> <a href="mailto:privacy@agentranked.com" className="text-accent hover:underline">privacy@agentranked.com</a></p>
-                    <p className="mt-2"><strong className="text-foreground">Company:</strong> AgentRanked</p>
+                    <p><strong className="text-foreground">Email:</strong> <a href="mailto:hello@eagleranked.com" className="text-accent hover:underline">hello@eagleranked.com</a></p>
+                    <p className="mt-2"><strong className="text-foreground">Company:</strong> The Reorganization, LLC</p>
+                    <p className="mt-1 text-sm">30N Gould, Sheridan, Wyoming, 82801, US</p>
                   </div>
                 </section>
               </div>
