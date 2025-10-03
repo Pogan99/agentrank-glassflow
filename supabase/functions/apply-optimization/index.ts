@@ -7,8 +7,8 @@ serve(async (req) => {
   // selectedFields = ['title', 'description', 'tags']
   
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL'),
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
   
   // Check credits
@@ -17,6 +17,10 @@ serve(async (req) => {
     .select('optimization_credits_used, optimization_credits_limit, shopify_shop_domain, shopify_access_token')
     .eq('id', userId)
     .single()
+  
+  if (!profile) {
+    return new Response(JSON.stringify({ error: 'Profile not found' }), { status: 404 })
+  }
   
   if (profile.optimization_credits_used >= profile.optimization_credits_limit) {
     return new Response(JSON.stringify({

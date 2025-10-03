@@ -6,8 +6,8 @@ serve(async (req) => {
   const { userId } = await req.json()
   
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL'),
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
   
   // Get user's Shopify credentials
@@ -16,6 +16,10 @@ serve(async (req) => {
     .select('shopify_shop_domain, shopify_access_token')
     .eq('id', userId)
     .single()
+  
+  if (!profile || !profile.shopify_shop_domain || !profile.shopify_access_token) {
+    return new Response(JSON.stringify({ error: 'Shopify not connected' }), { status: 400 })
+  }
   
   // Create sync job
   const { data: job } = await supabase
@@ -35,11 +39,11 @@ serve(async (req) => {
     let totalProducts = 0
     
     while (hasNextPage) {
-      const query = pageInfo 
+      const query: string = pageInfo 
         ? `after: "${pageInfo}"`
         : 'first: 250'
       
-      const response = await fetch(
+      const response: Response = await fetch(
         `https://${profile.shopify_shop_domain}/admin/api/2024-01/graphql.json`,
         {
           method: 'POST',
@@ -101,7 +105,7 @@ serve(async (req) => {
         }
       )
       
-      const { data } = await response.json()
+      const { data }: any = await response.json()
       
       // Insert/update products
       for (const edge of data.products.edges) {
@@ -124,7 +128,7 @@ serve(async (req) => {
           seo_title: product.seo.title,
           seo_description: product.seo.description,
           featured_image: product.featuredImage?.url,
-          images: product.images.edges.map(e => ({
+          images: product.images.edges.map((e: any) => ({
             src: e.node.url,
             alt: e.node.altText
           })),
@@ -162,9 +166,10 @@ serve(async (req) => {
     }))
     
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     await supabase.from('sync_jobs').update({
       status: 'failed',
-      error_message: error.message,
+      error_message: errorMessage,
       completed_at: new Date().toISOString()
     }).eq('id', job.id)
     

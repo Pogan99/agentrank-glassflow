@@ -67,10 +67,11 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('OAuth callback error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'OAuth callback failed'
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'OAuth callback failed'
+        error: errorMessage
       }),
       {
         status: 500,

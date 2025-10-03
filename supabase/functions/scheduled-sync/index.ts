@@ -4,8 +4,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 serve(async () => {
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL'),
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
   
   const now = new Date()
@@ -20,6 +20,10 @@ serve(async () => {
       and(plan.eq.starter,last_sync_at.lt.${new Date(now.getTime() - 24*60*60*1000).toISOString()}),
       and(plan.eq.pro,last_sync_at.lt.${new Date(now.getTime() - 60*60*1000).toISOString()})
     `)
+  
+  if (!users) {
+    return new Response(JSON.stringify({ success: true, users_synced: 0 }))
+  }
   
   for (const user of users) {
     try {

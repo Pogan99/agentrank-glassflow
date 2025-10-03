@@ -5,8 +5,8 @@ import { createHmac } from "https://deno.land/std@0.168.0/node/crypto.ts"
 
 serve(async (req) => {
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL'),
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
   
   // Verify webhook signature
@@ -15,7 +15,7 @@ serve(async (req) => {
   const shop = req.headers.get('X-Shopify-Shop-Domain')
   
   const body = await req.text()
-  const hash = createHmac('sha256', Deno.env.get('SHOPIFY_WEBHOOK_SECRET'))
+  const hash = createHmac('sha256', Deno.env.get('SHOPIFY_WEBHOOK_SECRET')!)
     .update(body)
     .digest('base64')
   
@@ -63,7 +63,7 @@ serve(async (req) => {
   return new Response('OK', { status: 200 })
 })
 
-async function handleProductUpdate(supabase, userId, payload) {
+async function handleProductUpdate(supabase: any, userId: string, payload: any) {
   await supabase.from('products').upsert({
     user_id: userId,
     shopify_product_id: payload.id.toString(),
@@ -72,11 +72,11 @@ async function handleProductUpdate(supabase, userId, payload) {
     body_html: payload.body_html,
     vendor: payload.vendor,
     product_type: payload.product_type,
-    tags: payload.tags.split(',').map(t => t.trim()),
+    tags: payload.tags.split(',').map((t: string) => t.trim()),
     handle: payload.handle,
     status: payload.status,
     featured_image: payload.image?.src,
-    images: payload.images?.map(img => ({ src: img.src, alt: img.alt })),
+    images: payload.images?.map((img: any) => ({ src: img.src, alt: img.alt })),
     price: parseFloat(payload.variants[0]?.price || '0'),
     inventory_quantity: payload.variants[0]?.inventory_quantity || 0,
     last_synced_at: new Date().toISOString()
@@ -90,7 +90,7 @@ async function handleProductUpdate(supabase, userId, payload) {
   })
 }
 
-async function handleProductDelete(supabase, userId, payload) {
+async function handleProductDelete(supabase: any, userId: string, payload: any) {
   await supabase.from('products')
     .delete()
     .eq('user_id', userId)
@@ -102,7 +102,7 @@ async function handleProductDelete(supabase, userId, payload) {
   })
 }
 
-async function handleInventoryUpdate(supabase, userId, payload) {
+async function handleInventoryUpdate(supabase: any, userId: string, payload: any) {
   // Update inventory for variant
   await supabase.from('products')
     .update({

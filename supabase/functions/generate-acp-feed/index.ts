@@ -6,8 +6,8 @@ serve(async (req) => {
   const { userId } = await req.json()
   
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL'),
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
   
   // Get user and products
@@ -23,8 +23,16 @@ serve(async (req) => {
     .eq('user_id', userId)
     .eq('status', 'active')
   
+  if (!products || !profile) {
+    return new Response(JSON.stringify({ error: 'No data found' }), { status: 404 })
+  }
+  
   // Build ACP feed
-  const acpFeed = {
+  const acpFeed: {
+    version: string;
+    merchant: any;
+    products: any[];
+  } = {
     version: "1.0",
     merchant: {
       id: userId,
@@ -65,7 +73,7 @@ serve(async (req) => {
       description: product.description,
       link: `https://${profile.shopify_shop_domain}/products/${product.handle}`,
       image_link: product.featured_image,
-      additional_image_link: product.images?.slice(1).map(img => img.src) || [],
+      additional_image_link: product.images?.slice(1).map((img: any) => img.src) || [],
       price: `${product.price} ${product.currency}`,
       availability: product.inventory_quantity > 0 ? 'in_stock' : 'out_of_stock',
       brand: product.vendor || profile.name,

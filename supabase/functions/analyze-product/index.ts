@@ -6,8 +6,8 @@ serve(async (req) => {
   const { productId, userId } = await req.json()
   
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL'),
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
   
   // Get product
@@ -60,7 +60,7 @@ Return JSON only with these fields as arrays of keywords.`
   }
   
   // 2. Check ACP compliance
-  const acpChecks = {
+  const acpChecks: Record<string, boolean> = {
     has_title: !!product.title && product.title.length >= 10,
     has_description: !!product.description && product.description.length >= 50,
     has_price: !!product.price && product.price > 0,
