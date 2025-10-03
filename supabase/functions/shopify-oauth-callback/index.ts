@@ -13,7 +13,7 @@ serve(async (req) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        client_id: Deno.env.get('VITE_SHOPIFY_API_KEY'),
+        client_id: Deno.env.get('SHOPIFY_API_KEY'),
         client_secret: Deno.env.get('SHOPIFY_API_SECRET'),
         code
       })

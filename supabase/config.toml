@@ -1,5 +1,11 @@
 project_id = "qrxtifofjyifyfyqrqjg"
 
+[functions.shopify-oauth-init]
+verify_jwt = false
+
+[functions.shopify-oauth-callback]
+verify_jwt = true
+
 [functions.import-shopify-products]
 verify_jwt = true
 
