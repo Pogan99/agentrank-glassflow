@@ -21,6 +21,7 @@ import Analytics from "./pages/dashboard/Analytics";
 import Settings from "./pages/dashboard/Settings";
 import Welcome from "./pages/onboarding/Welcome";
 import ConnectStore from "./pages/onboarding/ConnectStore";
+import ShopifyCallback from "./pages/onboarding/ShopifyCallback";
 import OnboardingPricing from "./pages/onboarding/Pricing";
 import Setup from "./pages/onboarding/Setup";
 import Verify from "./pages/auth/Verify";
@@ -49,6 +50,7 @@ const App = () => (
           {/* Onboarding routes (no nav/footer) */}
           <Route path="/onboarding/welcome" element={<Welcome />} />
           <Route path="/onboarding/connect-store" element={<ConnectStore />} />
+          <Route path="/onboarding/shopify/callback" element={<ShopifyCallback />} />
           <Route path="/onboarding/pricing" element={<OnboardingPricing />} />
           <Route path="/onboarding/setup" element={<Setup />} />
 

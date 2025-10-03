@@ -317,7 +317,31 @@ export class APIClient {
     const { data, error } = await supabase.functions.invoke('generate-acp-feed', {
       body: { userId },
     });
-    
+
+    if (error) throw error;
+    return data;
+  }
+
+  // Shopify OAuth
+  static async initiateShopifyOAuth(shop: string) {
+    const { data, error } = await supabase.functions.invoke('shopify-oauth-init', {
+      body: { shop },
+    });
+
+    if (error) throw error;
+    return data as { authUrl: string };
+  }
+
+  static async handleShopifyCallback(code: string, shop: string, state: string) {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    const { data, error } = await supabase.functions.invoke('shopify-oauth-callback', {
+      body: { code, shop, state },
+      headers: {
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+    });
+
     if (error) throw error;
     return data;
   }

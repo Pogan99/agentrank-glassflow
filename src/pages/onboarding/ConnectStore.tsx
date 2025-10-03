@@ -1,13 +1,51 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Zap, ArrowRight } from "lucide-react";
+import { Zap, ArrowRight, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { APIClient } from "@/lib/api/client";
+import { Toast, ToastType } from "@/components/Toast";
 
 const ConnectStore = () => {
   const navigate = useNavigate();
+  const [shopDomain, setShopDomain] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-  const handleConnectShop = () => {
-    // Trigger Shopify OAuth
-    window.location.href = "/api/shopify/oauth";
+  const handleConnectShop = async () => {
+    if (!shopDomain.trim()) {
+      setToast({ message: "Please enter your Shopify store domain", type: "error" });
+      return;
+    }
+
+    // Normalize shop domain
+    let shop = shopDomain.trim().toLowerCase();
+
+    // Remove protocol if present
+    shop = shop.replace(/^https?:\/\//, '');
+
+    // Add .myshopify.com if not present
+    if (!shop.includes('.myshopify.com')) {
+      shop = `${shop}.myshopify.com`;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { authUrl } = await APIClient.initiateShopifyOAuth(shop);
+
+      // Store shop domain in sessionStorage for callback
+      sessionStorage.setItem('shopify_shop', shop);
+
+      // Redirect to Shopify OAuth
+      window.location.href = authUrl;
+    } catch (error: any) {
+      console.error('OAuth init failed:', error);
+      setToast({
+        message: error.message || "Failed to initiate Shopify connection",
+        type: "error"
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -69,14 +107,42 @@ const ConnectStore = () => {
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* Shop Domain Input */}
         <div className="space-y-4 max-w-md mx-auto mb-8">
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Store className="w-5 h-5" />
+            </div>
+            <input
+              type="text"
+              value={shopDomain}
+              onChange={(e) => setShopDomain(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleConnectShop()}
+              placeholder="your-store-name"
+              className="w-full pl-12 pr-4 py-4 glass-panel rounded-full text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent text-center font-medium"
+              disabled={isLoading}
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/70 text-sm">
+              .myshopify.com
+            </div>
+          </div>
+
           <button
             onClick={handleConnectShop}
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-lg px-8 py-4 rounded-full shadow-lg shadow-accent/30 transition-all inline-flex items-center justify-center gap-2"
+            disabled={isLoading || !shopDomain.trim()}
+            className="w-full bg-accent hover:bg-accent/90 disabled:bg-accent/50 disabled:cursor-not-allowed text-accent-foreground font-semibold text-lg px-8 py-4 rounded-full shadow-lg shadow-accent/30 transition-all inline-flex items-center justify-center gap-2"
           >
-            Connect Shopify
-            <ArrowRight className="w-5 h-5" />
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                Connect Shopify
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
           </button>
         </div>
 
@@ -88,6 +154,16 @@ const ConnectStore = () => {
           <div className="w-2 h-2 rounded-full bg-white/20"></div>
         </div>
       </motion.div>
+
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={!!toast}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
