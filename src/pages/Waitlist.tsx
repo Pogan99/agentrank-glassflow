@@ -209,7 +209,8 @@ const Waitlist = () => {
 
   const referralLink = useMemo(() => {
     if (!currentUser) return "";
-    return `https://getagentranked.com/waitlist?ref=${currentUser.referral_code}`;
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/waitlist?ref=${currentUser.referral_code}`;
   }, [currentUser]);
 
   const totalInvites = currentUser?.invite_count ?? 0;
