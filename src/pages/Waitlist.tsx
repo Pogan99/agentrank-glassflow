@@ -321,7 +321,7 @@ const Waitlist = () => {
               <div className="relative">
                 <div className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-cyan-400/20">
                   <img
-                    src="/waitlist-hero.png"
+                    src="/chatgpthero1.png"
                     alt="ChatGPT Shopping carousel mockup showing Shopify products"
                     className="h-full w-full object-cover"
                   />
