@@ -1,15 +1,16 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
-import { Copy, ExternalLink, Mail, Sparkles } from "lucide-react";
+import { Copy, ExternalLink, Mail, Sparkles, CheckCircle2 } from "lucide-react";
 
 import { GlassCard } from "@/components/GlassCard";
+import { GlassNav } from "@/components/GlassNav";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const WAITLIST_STORAGE_KEY = "agentranked_waitlist_ref";
@@ -30,7 +31,6 @@ const Waitlist = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formMessage, setFormMessage] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<WaitlistUser | null>(null);
   const [initializing, setInitializing] = useState(true);
   const [stage, setStage] = useState<WaitlistStage>("signup");
@@ -84,12 +84,6 @@ const Waitlist = () => {
       setStage("referrals");
     }
   }, [currentUser, initializing]);
-
-  useEffect(() => {
-    if (stage === "signup") {
-      setFormMessage(null);
-    }
-  }, [stage]);
 
   /** Generate a short, human-friendly referral code. */
   const generateUniqueReferralCode = useCallback(async (): Promise<string> => {
@@ -176,8 +170,7 @@ const Waitlist = () => {
       if (existing) {
         setCurrentUser(existing);
         localStorage.setItem(WAITLIST_STORAGE_KEY, existing.referral_code);
-        setFormMessage("You’re already on the AgentRanked waitlist. Keep sharing your link below.");
-        toast("You’re already on the waitlist.");
+        toast("You're already on the waitlist.");
         return;
       }
 
@@ -203,13 +196,12 @@ const Waitlist = () => {
       if (inserted) {
         setCurrentUser(inserted);
         localStorage.setItem(WAITLIST_STORAGE_KEY, inserted.referral_code);
-        setFormMessage("You’re in! Invite 3 Shopify friends to claim early beta access.");
-        toast("Welcome to the AgentRanked waitlist.");
+        toast("Welcome to the AgentRanked waitlist!");
       }
     } catch (signUpError) {
       console.error(signUpError);
       setError("Something went wrong while joining the waitlist. Please try again.");
-      toast("We couldn’t process your signup. Please try again.");
+      toast.error("We couldn't process your signup. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -229,10 +221,10 @@ const Waitlist = () => {
 
     try {
       await navigator.clipboard.writeText(referralLink);
-      toast("Referral link copied to clipboard.");
+      toast.success("Referral link copied to clipboard!");
     } catch (copyError) {
       console.error(copyError);
-      toast("Unable to copy link. Please copy it manually.");
+      toast.error("Unable to copy link. Please copy it manually.");
     }
   };
 
@@ -249,10 +241,13 @@ const Waitlist = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
+      <GlassNav />
+      
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.18),_transparent_55%)]" />
       <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_bottom,_rgba(26,86,219,0.16),_transparent_55%)]" />
 
       <main className="relative z-10 px-4 pb-24 pt-32 sm:px-6 lg:px-8">
+        {/* Hero Section */}
         <section className="mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -262,98 +257,75 @@ const Waitlist = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-accent/15 via-transparent to-white/10" />
             <div className="relative grid items-center gap-12 md:grid-cols-2">
+              {/* Left: Copy and Form */}
               <div className="space-y-8 text-left">
                 <div className="space-y-4">
-                  <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/80">AgentRanked Waitlist</p>
+                  <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/80">Early Access Waitlist</p>
                   <h1 className="text-4xl font-semibold leading-tight text-foreground md:text-5xl">
                     Be first when ChatGPT Shopping for Shopify launches
                   </h1>
                   <p className="max-w-xl text-lg text-muted-foreground">
-                    AgentRanked auto-builds ACP feeds so your products are discoverable when assistants start recommending Shopify stores directly inside ChatGPT Shopping.
+                    AgentRanked auto-builds ACP feeds so your products are discoverable by AI shoppers when ChatGPT Shopping launches for Shopify stores.
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center">
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="justify-start rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/20"
-                  >
-                    <a href="https://openai.com/blog/chatgpt-shopify" target="_blank" rel="noreferrer">
-                      Shopify + OpenAI ACP announcement
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="justify-start rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/20"
-                  >
-                    <a href="https://developers.openai.com/commerce/specs/feed" target="_blank" rel="noreferrer">
-                      Shopify’s developer ACP docs
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                  </Button>
-                </div>
-
                 {stage === "signup" && (
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row">
-                    <div className="flex-1">
+                  <>
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                       <Input
                         type="email"
                         value={email}
                         disabled={loading}
                         onChange={(event) => setEmail(event.target.value)}
-                        placeholder="name@store.com"
+                        placeholder="your@shopify-store.com"
                         className="h-14 rounded-full border-white/20 bg-white/10 px-6 text-base text-foreground backdrop-blur focus-visible:ring-2 focus-visible:ring-cyan-300/60"
                       />
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      size="lg"
-                      className="h-14 rounded-full bg-accent px-8 text-base font-semibold text-accent-foreground shadow-[0_0_40px_rgba(34,211,238,0.4)] transition hover:bg-accent/90"
-                    >
-                      {loading ? "Joining..." : "Join Waitlist"}
-                    </Button>
-                  </form>
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        size="lg"
+                        className="h-14 rounded-full bg-accent px-8 text-base font-semibold text-accent-foreground shadow-[0_0_40px_rgba(34,211,238,0.4)] transition hover:bg-accent/90"
+                      >
+                        {loading ? "Joining..." : "Join Waitlist"}
+                      </Button>
+                    </form>
+                    {error && (
+                      <p className="text-sm text-red-300">{error}</p>
+                    )}
+                  </>
                 )}
 
                 {stage !== "signup" && (
-                  <div className="rounded-2xl border border-white/10 bg-white/10 p-5 text-sm text-cyan-100 shadow-inner shadow-cyan-300/20">
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-5 text-sm shadow-inner shadow-cyan-300/20">
                     {stage === "success" ? (
                       <div className="flex items-start gap-3">
                         <span className="text-2xl">🎉</span>
                         <p className="text-base font-semibold text-cyan-100">
-                          You’ve unlocked beta access. We’ll notify you the moment onboarding opens.
+                          You've unlocked beta access! We'll notify you the moment onboarding opens.
                         </p>
                       </div>
                     ) : (
-                      <p className="text-base font-medium text-cyan-100">
-                        Thanks for joining! Share your referral link below to unlock early beta access.
-                      </p>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-cyan-300 flex-shrink-0 mt-0.5" />
+                        <p className="text-base font-medium text-cyan-100">
+                          You're on the list! Share your referral link below to unlock early beta access.
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
-
-                {error && stage === "signup" && (
-                  <p className="text-sm text-red-300">{error}</p>
-                )}
-
-                {formMessage && stage !== "signup" && (
-                  <p className="text-sm text-muted-foreground">{formMessage}</p>
-                )}
               </div>
 
+              {/* Right: Hero Image */}
               <div className="relative">
                 <div className="glass-frost relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-cyan-400/20">
                   <img
                     src="/waitlist-hero.png"
-                    alt="Preview of AgentRanked waitlist"
+                    alt="ChatGPT Shopping carousel mockup showing Shopify products"
                     className="h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 rounded-2xl border border-white/20 bg-white/15 px-5 py-3 text-sm font-medium text-foreground shadow-[0_0_25px_rgba(34,211,238,0.25)]">
+                  <div className="absolute bottom-6 left-6 rounded-2xl border border-white/20 bg-white/15 px-5 py-3 text-sm font-medium text-foreground shadow-[0_0_25px_rgba(34,211,238,0.25)] backdrop-blur-sm">
                     Your Products Here
                   </div>
                 </div>
@@ -362,30 +334,69 @@ const Waitlist = () => {
           </motion.div>
         </section>
 
+        {/* What is ACP? Why Now? Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mx-auto mt-16 max-w-5xl"
+        >
+          <GlassCard className="relative overflow-hidden rounded-3xl border border-white/10 p-8 md:p-12 shadow-2xl shadow-cyan-400/15">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-white/10" />
+            <div className="relative space-y-6 text-left">
+              <h2 className="text-3xl font-semibold text-foreground">What is ACP? Why Now?</h2>
+              <div className="space-y-4 text-muted-foreground">
+                <p className="text-lg leading-relaxed">
+                  <strong className="text-foreground">ACP (Agentic Commerce Protocol)</strong> is OpenAI's new standard that enables ChatGPT and other AI assistants to recommend and sell products directly in conversations. Think of it as SEO for the AI era—but instead of ranking on Google, your products appear when millions of users ask ChatGPT for shopping recommendations.
+                </p>
+                <p className="text-lg leading-relaxed">
+                  OpenAI recently announced official support for Shopify stores, meaning ChatGPT will soon browse, recommend, and link to products from ACP-compliant Shopify merchants. <strong className="text-foreground">If your store isn't ACP-ready when this launches, you'll be invisible to AI shoppers.</strong>
+                </p>
+                <p className="text-lg leading-relaxed">
+                  AgentRanked automates the entire ACP feed generation and optimization process so you can focus on running your business while we make sure your products are discoverable by ChatGPT Shopping, Claude Commerce, and other AI shopping agents.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="justify-start rounded-full border border-cyan-300/40 bg-cyan-400/20 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:bg-cyan-300/30"
+                >
+                  <a href="https://openai.com/index/buy-it-in-chatgpt/" target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    OpenAI + Shopify Announcement
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </GlassCard>
+        </motion.section>
+
+        {/* Referral Dashboard */}
         {!initializing && currentUser && (
           <motion.section
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="mx-auto mt-16 max-w-5xl"
           >
             <GlassCard className="relative overflow-hidden rounded-3xl border border-white/10 p-8 shadow-2xl shadow-cyan-400/15">
               <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 via-transparent to-white/10" />
               <div className="relative space-y-8">
                 <div className="space-y-3 text-left">
-                  <h2 className="text-2xl font-semibold text-foreground">Referral dashboard</h2>
+                  <h2 className="text-2xl font-semibold text-foreground">Referral Dashboard</h2>
                   <p className="max-w-xl text-sm text-muted-foreground">
-                    Invite 3 Shopify friends to unlock early beta access (only 25 spots).
+                    Invite 3 Shopify friends to unlock early beta access (only 25 spots available).
                   </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left">
-                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Total invited</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Total Invited</p>
                     <p className="mt-3 text-2xl font-semibold text-foreground">{totalInvites}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left">
-                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Pending invites</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Pending Invites</p>
                     <p className="mt-3 text-2xl font-semibold text-foreground">{pendingInvites}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left">
@@ -406,7 +417,7 @@ const Waitlist = () => {
                   {stage === "success" ? (
                     <div className="flex items-center gap-3 rounded-2xl border border-cyan-300/40 bg-cyan-500/15 px-4 py-3 text-sm font-medium text-cyan-50 shadow-[0_0_30px_rgba(34,211,238,0.35)]">
                       <Sparkles className="h-4 w-4" />
-                      You’ve unlocked beta access. We’ll notify you soon.
+                      You've unlocked beta access. We'll notify you soon.
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -417,7 +428,7 @@ const Waitlist = () => {
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                   <div className="w-full max-w-xl">
-                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Your referral link</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Your Referral Link</p>
                     <div className="mt-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-foreground">
                       <span className="truncate">{referralLink}</span>
                     </div>
@@ -430,7 +441,7 @@ const Waitlist = () => {
                       className="rounded-full border-cyan-300/40 bg-cyan-400/20 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300/30"
                     >
                       <Copy className="h-4 w-4" />
-                      Copy link
+                      Copy Link
                     </Button>
                     <Button
                       type="button"
@@ -439,7 +450,7 @@ const Waitlist = () => {
                       className="rounded-full border border-white/10 bg-white/10 text-foreground hover:bg-white/20"
                     >
                       <Mail className="h-4 w-4" />
-                      Invite via email
+                      Invite via Email
                     </Button>
                   </div>
                 </div>
@@ -448,6 +459,8 @@ const Waitlist = () => {
           </motion.section>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };
